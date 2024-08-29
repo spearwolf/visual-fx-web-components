@@ -102,6 +102,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.8)(happy-dom@14.12.3)
 
+  packages/astro-rainbow-line: {}
+
   packages/offscreen-display:
     dependencies:
       '@spearwolf/eventize':

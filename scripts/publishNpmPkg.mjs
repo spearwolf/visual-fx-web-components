@@ -37,7 +37,8 @@ exec(`npm show ${pkgJson.name} versions --json`, (error, stdout, stderr) => {
     } else {
       publishPackage();
     }
-  } else if (stderr && stderr.toString().includes('npm ERR! code E404')) {
+  } else if (stderr && stderr.toString().includes('E404')) {
+    // => npm ERR! code E404
     console.log('oh it looks like this is the first time to publish the package');
     publishPackage();
   } else {

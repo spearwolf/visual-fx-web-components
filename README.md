@@ -29,8 +29,9 @@ $ pnpm cbt  # => clean build test
 
 | package | description |
 |-|-|
-| [`offscreen-display`](packages/offscreen-display/) | Helpers for creating custom offscreen canvas elements |
-| [`rainbow-line`](packages/rainbow-line/) | A custom element that displays a cut line animated with rainbow colors |
+| [`offscreen-display`](packages/offscreen-display/) | helpers for creating custom offscreen canvas elements |
+| [`rainbow-line`](packages/rainbow-line/) | a web component that displays a cut line animated with rainbow colors |
+| [`@spearwolf/astro-rainbow-line`](packages/astro-rainbow-line/) | astro wrapper for the rainbow-line web component |
 
 ‼️ [for those interested in the shadow-ents-* packages, we are happy to announce that they have now been relocated to their own dedicated monorepo, "shadow-objects"](https://github.com/spearwolf/shadow-objects)
 

@@ -1,0 +1,16 @@
+{
+  "name": "@spearwolf/astro-rainbow-line",
+  "description": "astro wrapper for the rainbow-line web component",
+  "version": "1.0.0",
+  "main": "RainbowLine.astro",
+  "author": {
+    "name": "Wolfger Schramm",
+    "email": "wolfger@spearwolf.de",
+    "url": "https://www.spearwolf.de"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/spearwolf/visual-fx-web-components",
+  "scripts": {
+    "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs ."
+  }
+}
