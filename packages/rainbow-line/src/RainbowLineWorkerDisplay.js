@@ -10,6 +10,12 @@ let cycleColorsRepeat = 1;
 
 let ctx = null;
 
+const GRADIENT_RESOLUTION = 1024;
+
+let gradientCanvas = null;
+let gradientCtx = null;
+let gradientImageData = null;
+
 display.on({
   onCanvas({canvas}, contextAttributes) {
     ctx = canvas.getContext('2d', contextAttributes);
@@ -28,7 +34,7 @@ display.on({
         const t = ((now % sliceCycleTime) * cycleDirection) / sliceCycleTime;
         let i = ((xw + t) * _cycleColorsRepeat) % 1;
         if (i < 0) i += 1;
-        ctx.fillStyle = cycleColors[Math.floor(i * cycleColors.length)];
+        ctx.fillStyle = getGradientColor(i);
       }
       ctx.fillRect(x, 0, _colorSliceWidth, h);
       x += _colorSliceWidth;
@@ -56,9 +62,42 @@ export function parseMessageData(data) {
       cycleColors = [...colors.toLowerCase().matchAll(/(#[a-f0-9]+|[a-z]+\([^)]+\)|[a-z]+([^(]|$))( |$)+/g)].map((m) =>
         m[0].trim(),
       );
+      createLinearGradientImage(cycleColors);
     }
   }
   if ('cycle-colors-repeat' in data) {
     cycleColorsRepeat = data['cycle-colors-repeat'];
   }
+}
+
+function getGradientColor(x) {
+  const i = Math.max(Math.min(Math.floor(x * gradientCanvas.width), gradientCanvas.width - 1), 0) * 4;
+  const r = gradientImageData.data[i];
+  const g = gradientImageData.data[i + 1];
+  const b = gradientImageData.data[i + 2];
+  return `rgb(${r},${g},${b})`;
+}
+
+function createLinearGradientImage(cycleColors) {
+  if (gradientCanvas == null) {
+    gradientCanvas = new OffscreenCanvas(GRADIENT_RESOLUTION, 1);
+    gradientCtx = gradientCanvas.getContext('2d');
+  }
+
+  const gradient = ctx.createLinearGradient(0, 0, gradientCanvas.width, gradientCanvas.height);
+
+  let x = 0;
+  let step = 1 / cycleColors.length;
+
+  for (let i = 0; i < cycleColors.length; i++) {
+    gradient.addColorStop(x, cycleColors[i]);
+    x += step;
+  }
+
+  gradient.addColorStop(1, cycleColors[0]);
+
+  gradientCtx.fillStyle = gradient;
+  gradientCtx.fillRect(0, 0, gradientCanvas.width, gradientCanvas.height);
+
+  gradientImageData = gradientCtx.getImageData(0, 0, gradientCanvas.width, gradientCanvas.height);
 }
