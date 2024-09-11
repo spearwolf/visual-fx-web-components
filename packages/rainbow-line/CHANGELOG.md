@@ -7,11 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+...
+
+## [0.3.0] - 2024-09-11
+
 ### Added
 
 - `color-slice-width` values are interpreted as a _percentage of the total width_ if the value is between `0` and `1`
+- Add new options to use custom color gradients:
+  - `cycle-colors`
+  - `cycle-colors-repeat`
 - Switch to [esm.sh](https://esm.sh/) as default CDN for `example.html`
 - Add fiddle demo
+
+
+### Changed
+
+- The `index.html` now shows a range of usage examples
 
 ### Fixed
 
