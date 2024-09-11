@@ -44,4 +44,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Comparing changes
 
 - [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.2.1...HEAD)
+- [0.3.0](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.2.1...rainbow-line-v0.3.0)
 - [0.2.1](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.2.0...rainbow-line-v0.2.1)
