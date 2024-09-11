@@ -2,8 +2,10 @@ import {OffscreenDisplay} from '@spearwolf/offscreen-display';
 
 const toCycleDirection = (direction) => (direction === 'left' ? 1 : -1);
 
+const toCycleColors = (colors) => (typeof colors === 'string' ? colors.trim() || undefined : undefined);
+
 export class RainbowLineElement extends OffscreenDisplay {
-  static observedAttributes = ['color-slice-width', 'slice-cycle-time', 'cycle-direction'];
+  static observedAttributes = ['color-slice-width', 'slice-cycle-time', 'cycle-direction', 'cycle-colors'];
 
   constructor() {
     super(`
@@ -46,11 +48,20 @@ export class RainbowLineElement extends OffscreenDisplay {
       'color-slice-width': this.asNumberValue('color-slice-width', 10),
       'slice-cycle-time': this.asNumberValue('slice-cycle-time', 7),
       'cycle-direction': toCycleDirection(this.getAttribute('cycle-direction') || 'right'),
+      'cycle-colors': this.hasAttribute('cycle-colors') ? toCycleColors(this.getAttribute('cycle-colors')) : undefined,
+      'cycle-colors-repeat': this.asNumberValue('cycle-colors-repeat', 1),
     };
   }
 
   attributeChangedCallback(name, _oldValue, newValue) {
     if (!this.worker) return;
+
+    if (name === 'cycle-colors') {
+      this.worker.postMessage({
+        'cycle-colors': toCycleColors(newValue),
+      });
+      return;
+    }
 
     const value = name === 'cycle-direction' ? toCycleDirection(newValue) : parseFloat(newValue);
 

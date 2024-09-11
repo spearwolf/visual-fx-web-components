@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `color-slice-width` values are interpreted as a _percentage of the total width_ if the value is between `0` and `1`
 - Switch to [esm.sh](https://esm.sh/) as default CDN for `example.html`
 - Add fiddle demo
 

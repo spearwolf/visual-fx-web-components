@@ -1,14 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
   </head>
   <body>
-    <div id="app"></div>
-    <rainbow-line slice-cycle-time="5"></rainbow-line>
+    <h1>&lt;rainbow-line/&gt; playground</h1>
+
+    <h2>default settings</h2>
+    <rainbow-line></rainbow-line>
+
+    <div class="vspace"></div>
+
+    <h2>with shadow</h2>
+    <div class="shadow-container">
+      <rainbow-line slice-cycle-time="5" cycle-direction="left"></rainbow-line>
+      <rainbow-line slice-cycle-time="5" cycle-direction="left" class="shadow"></rainbow-line>
+    </div>
+
+    <h2>pixelated</h2>
+    <rainbow-line class="bulky" color-slice-width="0.03"></rainbow-line>
+
+    <div class="vspace"></div>
+
+    <h2>custom cycle-colors #1</h2>
+    <rainbow-line cycle-colors="#023 #445 #863 #b85 #fa3 #b85 #863 #445" cycle-direction="left" class="bulky"></rainbow-line>
+
+    <div class="vspace"></div>
+
+    <h2>custom cycle-colors #2</h2>
+    <rainbow-line
+      cycle-colors="black white"
+      cycle-colors-repeat="0.01"
+      slice-cycle-time="10"
+      color-slice-width="1"
+      cycle-direction="right"
+    ></rainbow-line>
+
     <script type="module" src="main.js"></script>
     <script type="module" src="src/rainbow-line.js"></script>
   </body>
