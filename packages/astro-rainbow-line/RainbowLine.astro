@@ -4,14 +4,25 @@ interface Props {
   colorSliceWidth?: number;
   sliceCycleTime?: number;
   cycleDirection?: 'left' | 'right';
+  cycleColors?: string | string[];
+  cycleColorsRepeat?: number;
 }
 
-const {shadow = false, colorSliceWidth = 10, sliceCycleTime = 7, cycleDirection = 'right'} = Astro.props;
+const {
+  shadow = false,
+  colorSliceWidth = 10,
+  sliceCycleTime = 7,
+  cycleDirection = 'right',
+  cycleColors,
+  cycleColorsRepeat,
+} = Astro.props;
+
+const _cycleColors = Array.isArray(cycleColors) ? cycleColors.join(' ') : cycleColors || undefined;
 
 // @ts-ignore
 const baseUrl = import.meta.env.BASE_URL ?? '//';
 // @ts-ignore
-const rainbowLineJs = import.meta.env.RAINBOW_LINE_JS || 'js/rainbow-line-v0.2.1.js';
+const rainbowLineJs = import.meta.env.RAINBOW_LINE_JS || 'js/rainbow-line-v0.3.0.js';
 
 const rainbowLineSrc = `${baseUrl}${baseUrl.endsWith('/') ? '' : '/'}${rainbowLineJs}`;
 ---
@@ -20,7 +31,9 @@ const rainbowLineSrc = `${baseUrl}${baseUrl.endsWith('/') ? '' : '/'}${rainbowLi
   class="rainbow"
   color-slice-width={colorSliceWidth}
   slice-cycle-time={sliceCycleTime}
-  cycle-direction={cycleDirection}></rainbow-line>
+  cycle-direction={cycleDirection}
+  cycle-colors={_cycleColors}
+  cycle-colors-repeat={cycleColorsRepeat}></rainbow-line>
 {
   shadow && (
     <rainbow-line
@@ -28,6 +41,8 @@ const rainbowLineSrc = `${baseUrl}${baseUrl.endsWith('/') ? '' : '/'}${rainbowLi
       color-slice-width={colorSliceWidth}
       slice-cycle-time={sliceCycleTime}
       cycle-direction={cycleDirection}
+      cycle-colors={_cycleColors}
+      cycle-colors-repeat={cycleColorsRepeat}
     />
   )
 }

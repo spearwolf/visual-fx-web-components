@@ -1,7 +1,7 @@
 {
   "name": "@spearwolf/astro-rainbow-line",
   "description": "astro wrapper for the rainbow-line web component",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "RainbowLine.astro",
   "author": {
     "name": "Wolfger Schramm",
