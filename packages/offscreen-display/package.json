@@ -1,7 +1,7 @@
 {
   "name": "@spearwolf/offscreen-display",
   "description": "helpers for creating custom offscreen canvas elements",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": {
     "name": "Wolfger Schramm",
     "email": "wolfger@spearwolf.de",
@@ -26,15 +26,16 @@
     "build:pkg:json": "pnpm node ../../scripts/makePackageJson.mjs",
     "build:pkg:clean": "pnpm exec rimraf .npm-pkg",
     "clean": "pnpm exec rimraf build types dist lib tests .npm-pkg",
+    "update": "pnpm dlx npm-check --update",
     "buildNpmPkg": "pnpm exec run-s build:pkg:clean build:pkg:prepare build:pkg:json",
     "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs .npm-pkg",
     "test": "echo NO TESTS YET FOR @spearwolf/offscreen-display"
   },
   "dependencies": {
-    "@spearwolf/eventize": "^3.4.1",
-    "@spearwolf/signalize": "^0.13.0"
+    "@spearwolf/eventize": "^4.0.1",
+    "@spearwolf/signalize": "^0.18.1"
   },
   "devDependencies": {
-    "esbuild": "^0.20.1"
+    "esbuild": "^0.24.0"
   }
 }

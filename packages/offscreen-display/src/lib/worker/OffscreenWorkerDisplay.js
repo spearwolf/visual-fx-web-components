@@ -1,4 +1,4 @@
-import {eventize} from '@spearwolf/eventize';
+import {emit, eventize, retain} from '@spearwolf/eventize';
 import {batch, createEffect, createSignal} from '@spearwolf/signalize';
 
 export class OffscreenWorkerDisplay {
@@ -18,62 +18,54 @@ export class OffscreenWorkerDisplay {
   constructor() {
     eventize(this);
 
-    const [canvas, setCanvas] = createSignal(null);
-    const [isConnected, setIsConnected] = createSignal(false);
+    const canvas$ = createSignal(null);
+    const isConnected$ = createSignal(false);
 
-    const [canvasWidth, setCanvasWidth] = createSignal(0);
-    const [canvasHeight, setCanvasHeight] = createSignal(0);
+    const canvasWidth$ = createSignal(0);
+    const canvasHeight$ = createSignal(0);
 
     Object.defineProperties(this, {
       canvas: {
-        get: () => canvas(),
-        set: (value) => {
-          setCanvas(value);
-        },
+        get: canvas$.get,
+        set: canvas$.set,
         enumerable: true,
       },
       isConnected: {
-        get: () => isConnected(),
-        set: (value) => {
-          setIsConnected(value);
-        },
+        get: isConnected$.get,
+        set: isConnected$.set,
         enumerable: true,
       },
       canvasWidth: {
-        get: () => canvasWidth(),
-        set: (value) => {
-          setCanvasWidth(value);
-        },
+        get: canvasWidth$.get,
+        set: canvasWidth$.set,
         enumerable: true,
       },
       canvasHeight: {
-        get: () => canvasHeight(),
-        set: (value) => {
-          setCanvasHeight(value);
-        },
+        get: canvasHeight$.get,
+        set: canvasHeight$.set,
         enumerable: true,
       },
     });
 
     this.now = 0;
 
-    this.retain([OffscreenWorkerDisplay.Canvas, OffscreenWorkerDisplay.Init, OffscreenWorkerDisplay.Resize]);
+    retain(this, [OffscreenWorkerDisplay.Canvas, OffscreenWorkerDisplay.Init, OffscreenWorkerDisplay.Resize]);
 
     createEffect(() => {
       if (this.canvas) {
-        this.emit(OffscreenWorkerDisplay.Canvas, this, this.#contextAttributes);
+        emit(this, OffscreenWorkerDisplay.Canvas, this, this.#contextAttributes);
       }
-    }, [canvas]);
+    }, [canvas$]);
 
     createEffect(() => {
       if (this.ready) {
-        this.emit(OffscreenWorkerDisplay.Init, this);
+        emit(this, OffscreenWorkerDisplay.Init, this);
       }
-    }, [canvas, isConnected]);
+    }, [canvas$, isConnected$]);
 
     createEffect(() => {
-      this.emit(OffscreenWorkerDisplay.Resize, this);
-    }, [canvasWidth, canvasHeight]);
+      emit(this, OffscreenWorkerDisplay.Resize, this);
+    }, [canvasWidth$, canvasHeight$]);
   }
 
   #requestAnimationFrame() {
@@ -94,7 +86,7 @@ export class OffscreenWorkerDisplay {
       this.now = now / 1000;
 
       if (this.canvasWidth > 0 && this.canvasHeight > 0) {
-        this.emit(OffscreenWorkerDisplay.Frame, this);
+        emit(this, OffscreenWorkerDisplay.Frame, this);
       }
     }
 

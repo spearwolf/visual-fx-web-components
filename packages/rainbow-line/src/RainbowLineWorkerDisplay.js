@@ -1,3 +1,4 @@
+import {on} from '@spearwolf/eventize';
 import {OffscreenWorkerDisplay} from '@spearwolf/offscreen-display/worker.js';
 
 const display = new OffscreenWorkerDisplay();
@@ -16,7 +17,7 @@ let gradientCanvas = null;
 let gradientCtx = null;
 let gradientImageData = null;
 
-display.on({
+on(display, {
   onCanvas({canvas}, contextAttributes) {
     ctx = canvas.getContext('2d', contextAttributes);
   },
