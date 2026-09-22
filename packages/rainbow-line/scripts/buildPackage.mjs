@@ -15,6 +15,7 @@ chdir(projectRoot);
 const COPY_FILES = [
   'src/RainbowLineElement.js',
   'src/RainbowLineWorkerDisplay.js',
+  'src/attributes.js',
   'LICENSE',
   'README.md',
   'CHANGELOG.md',

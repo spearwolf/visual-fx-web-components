@@ -17,6 +17,12 @@ test.describe('astro site using <RainbowLine>', () => {
     expect(problems).toEqual([]);
   });
 
+  test('loads the rainbow-line script with a single script tag', async ({page}) => {
+    await page.goto('/astro/');
+
+    await expect(page.locator('script[src*="/js/rainbow-line-v"]')).toHaveCount(1);
+  });
+
   test('renders a rainbow with the default props', async ({page}) => {
     await page.goto('/astro/');
 

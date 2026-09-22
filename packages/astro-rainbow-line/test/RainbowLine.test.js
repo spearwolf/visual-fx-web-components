@@ -69,6 +69,17 @@ describe('<RainbowLine>', () => {
     expect(shadow['slice-cycle-time']).toBe('3');
   });
 
+  test('renders the script tag only once per page', async () => {
+    const locals = {};
+    const scriptTags = (html) => html.match(/<script\b[^>]*\bsrc=/g) ?? [];
+
+    const first = await container.renderToString(RainbowLine, {locals});
+    const second = await container.renderToString(RainbowLine, {locals});
+
+    expect(scriptTags(first)).toHaveLength(1);
+    expect(scriptTags(second)).toHaveLength(0);
+  });
+
   test('loads the rainbow-line script from the vendored file below BASE_URL', async () => {
     const html = await render();
     const [, src] = html.match(/<script[^>]*\bsrc="([^"]+)"/) ?? [];

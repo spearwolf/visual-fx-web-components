@@ -1,11 +1,38 @@
 import {OffscreenDisplay} from '@spearwolf/offscreen-display';
+import {
+  DEFAULT_COLOR_SLICE_WIDTH,
+  DEFAULT_CYCLE_COLORS_REPEAT,
+  DEFAULT_SLICE_CYCLE_TIME,
+  toPositiveNumber,
+} from './attributes.js';
 
 const toCycleDirection = (direction) => (direction === 'left' ? 1 : -1);
 
 const toCycleColors = (colors) => (typeof colors === 'string' ? colors.trim() || undefined : undefined);
 
+const OBSERVED_ATTRIBUTES = ['color-slice-width', 'slice-cycle-time', 'cycle-direction', 'cycle-colors', 'cycle-colors-repeat'];
+
+/**
+ * @param {string} name
+ * @param {string | null} value the attribute value, null if the attribute is missing
+ */
+function toWorkerValue(name, value) {
+  switch (name) {
+    case 'cycle-direction':
+      return toCycleDirection(value);
+    case 'cycle-colors':
+      return toCycleColors(value);
+    case 'color-slice-width':
+      return toPositiveNumber(value, DEFAULT_COLOR_SLICE_WIDTH);
+    case 'slice-cycle-time':
+      return toPositiveNumber(value, DEFAULT_SLICE_CYCLE_TIME);
+    case 'cycle-colors-repeat':
+      return toPositiveNumber(value, DEFAULT_CYCLE_COLORS_REPEAT);
+  }
+}
+
 export class RainbowLineElement extends OffscreenDisplay {
-  static observedAttributes = ['color-slice-width', 'slice-cycle-time', 'cycle-direction', 'cycle-colors'];
+  static observedAttributes = OBSERVED_ATTRIBUTES;
 
   constructor() {
     super(`
@@ -44,34 +71,12 @@ export class RainbowLineElement extends OffscreenDisplay {
   }
 
   getInitialWorkerAttributes() {
-    return {
-      'color-slice-width': this.asNumberValue('color-slice-width', 10),
-      'slice-cycle-time': this.asNumberValue('slice-cycle-time', 7),
-      'cycle-direction': toCycleDirection(this.getAttribute('cycle-direction') || 'right'),
-      'cycle-colors': this.hasAttribute('cycle-colors') ? toCycleColors(this.getAttribute('cycle-colors')) : undefined,
-      'cycle-colors-repeat': this.asNumberValue('cycle-colors-repeat', 1),
-    };
+    return Object.fromEntries(OBSERVED_ATTRIBUTES.map((name) => [name, toWorkerValue(name, this.getAttribute(name))]));
   }
 
   attributeChangedCallback(name, _oldValue, newValue) {
     if (!this.worker) return;
 
-    if (name === 'cycle-colors') {
-      this.worker.postMessage({
-        'cycle-colors': toCycleColors(newValue),
-      });
-      return;
-    }
-
-    const value = name === 'cycle-direction' ? toCycleDirection(newValue) : parseFloat(newValue);
-
-    if (typeof value !== 'number') return;
-    if (Number.isNaN(value)) return;
-
-    // console.log("attributeChangedCallback", name, value);
-
-    this.worker.postMessage({
-      [name]: value,
-    });
+    this.worker.postMessage({[name]: toWorkerValue(name, newValue)});
   }
 }

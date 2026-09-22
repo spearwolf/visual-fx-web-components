@@ -68,6 +68,21 @@ test('rainbow-line declares eventize and offscreen-display as optional peer depe
   });
 });
 
+test('the published source modules of rainbow-line only import published files', () => {
+  const packageDir = new URL('rainbow-line/.npm-pkg/', packagesDir);
+  const pkg = readJson(new URL('package.json', packageDir));
+  const sources = exportTargets(pkg.exports).filter((target) => target.startsWith('./src/'));
+
+  expect(sources.length).toBeGreaterThan(0);
+  for (const source of sources) {
+    const url = new URL(source, packageDir);
+    const code = readFileSync(url, 'utf8');
+    for (const [, specifier] of code.matchAll(/\bfrom\s+'(\.{1,2}\/[^']+)'/g)) {
+      expect(existsSync(new URL(specifier, url)), `${specifier} imported by ${source} exists`).toBe(true);
+    }
+  }
+});
+
 test('the rainbow-line bundle carries a license banner with its version', () => {
   const {version} = readJson(new URL('rainbow-line/package.json', packagesDir));
   const bundle = readFileSync(new URL('rainbow-line/.npm-pkg/bundle.js', packagesDir), 'utf8');

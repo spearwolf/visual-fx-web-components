@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `astro` (`>=5`) is a peer dependency
 - published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements); `package.json` names the source `repository`
+- the `<script>` tag that loads rainbow-line is rendered once per page, however many `<RainbowLine>` the page contains
+
+### Fixed
+
+- without a `BASE_URL` the path of the script starts at `/`
 
 ## [1.3.0] - 2024-12-12
 

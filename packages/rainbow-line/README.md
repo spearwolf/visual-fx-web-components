@@ -14,6 +14,18 @@ A custom element that displays a cut line animated with rainbow colors ..
 <script type="module" src="https://www.unpkg.com/rainbow-line@latest"></script>
 ```
 
+## Attributes
+
+| Attribute | Default | Values |
+| --- | --- | --- |
+| `color-slice-width` | `10` | Width of a color slice in css pixels. A value between `0` and `1` is a fraction of the element width (`0.25` makes four slices). Slices are at least one device pixel wide. |
+| `slice-cycle-time` | `7` | Seconds for the colors to cycle once through a slice. |
+| `cycle-direction` | `right` | `left` or `right`; any other value is `right`. |
+| `cycle-colors` | — (rainbow) | A list of css colors, separated by whitespace or commas: `#023 #fa3`, `red, blue`, `rgb(255 0 0) hsl(200 80% 50%)`. Invalid colors are skipped with a warning in the console; without a single valid color the line shows the rainbow. |
+| `cycle-colors-repeat` | `1` | How often the `cycle-colors` repeat across the width. A value below `1` counts as its reciprocal: `0.5` repeats them twice, `0.01` a hundred times. Has no effect on the rainbow. |
+
+Numeric attributes that are missing, not a number, or not above `0` use their default. Every attribute can be changed while the element is on the page.
+
 ![rainbow-line elements preview](preview.png)
 
 see [example.html](example.html) for more usage examples
