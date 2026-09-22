@@ -20,10 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - without a `BASE_URL` the path of the script starts at `/`
-- the component type-checks in projects with `strict` TypeScript settings
 
 ## [1.3.0] - 2024-12-12
 
 ### Changed
 
 - update `rainbow-line` web component to `0.4.0`
+
+## Comparing changes
+
+- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v1.4.0...HEAD)
+- [1.4.0](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v1.3.0...astro-rainbow-line-v1.4.0)

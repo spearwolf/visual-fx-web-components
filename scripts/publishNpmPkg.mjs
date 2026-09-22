@@ -12,7 +12,8 @@ console.log('projectRoot:', projectRoot);
 console.log('packageRoot:', packageRoot);
 console.log('dryRun:', DRY_RUN ? 'yes' : 'no');
 console.log('env: ---');
-console.log(' - NODE_AUTH_TOKEN:', process.env.NODE_AUTH_TOKEN ? 'set' : 'unset');
+// npm trusted publishing exchanges the OIDC token of GitHub Actions, which needs `id-token: write`
+console.log(' - ACTIONS_ID_TOKEN_REQUEST_URL:', process.env.ACTIONS_ID_TOKEN_REQUEST_URL ? 'set' : 'unset');
 console.log('packageJson: ---');
 console.dir(pkgJson);
 

@@ -43,6 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # npm trusted publishing and provenance both use the OIDC token of this job
       id-token: write
     concurrency:
       group: publish
@@ -62,5 +63,27 @@ jobs:
       - run: pnpm run publishNpmPkg
         name: Publish npm packages
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
+
+  tag:
+    name: tag releases
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      # the only job that pushes; it installs no dependencies, so no package script runs while it holds this token
+      contents: write
+    concurrency:
+      group: tag
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # all commits and tags: a release is tagged at the commit npm recorded for it, which may be an older one
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - run: node scripts/tagReleases.mjs
+        name: Tag released versions

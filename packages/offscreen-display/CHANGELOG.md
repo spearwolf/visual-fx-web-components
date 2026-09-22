@@ -53,3 +53,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - add JSDocs to `OffscreenDisplay` class
+
+## Comparing changes
+
+- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.3.0...HEAD)
+- [0.3.0](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.2.0...offscreen-display-v0.3.0)
+- [0.2.0](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.1.2...offscreen-display-v0.2.0)
