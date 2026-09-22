@@ -250,6 +250,31 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
     await expect.poll(() => display.frameCount()).toBeGreaterThan(framesAfterError + 2);
   });
 
+  test('reports an error that repeats in every frame once, until a frame runs without it', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+    const failingFrames = () => display.eventsOf('failingFrame').length;
+
+    display.worker.postMessage({throwInEveryFrame: 'boom in every frame'});
+    await expect.poll(() => display.errors).toHaveLength(1);
+    const failingFramesBefore = failingFrames();
+    await expect.poll(failingFrames).toBeGreaterThan(failingFramesBefore + 5);
+    expect(display.errors).toHaveLength(1);
+    expect(display.errors[0]).toMatch(/boom in every frame/);
+
+    // another error is reported at once, even while the series goes on
+    display.worker.postMessage({throwInEveryFrame: 'another boom'});
+    await expect.poll(() => display.errors).toHaveLength(2);
+    expect(display.errors[1]).toMatch(/another boom/);
+
+    // after a frame without an error, the same error opens a new series
+    display.worker.postMessage({throwInEveryFrame: false});
+    const framesBefore = display.frameCount();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(framesBefore + 2);
+    display.worker.postMessage({throwInEveryFrame: 'another boom'});
+    await expect.poll(() => display.errors).toHaveLength(3);
+  });
+
   test('destroy() ends the frame loop and releases the signals of the display', async () => {
     const display = mountDisplay();
     await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
@@ -274,14 +299,23 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
       }
       return observe.call(this, target, options);
     };
+    // a ratio that differs from the one the page renders with: the device pixel box would still report 320x240,
+    // only the content box times the ratio makes 640x480
+    const devicePixelRatio = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio');
+    Object.defineProperty(window, 'devicePixelRatio', {configurable: true, get: () => 2});
     try {
       const display = mountDisplay();
 
       await expect
         .poll(() => display.eventsOf('resize').at(-1))
-        .toEqual({event: 'resize', width: 320, height: 240, pixelRatio: 1});
+        .toEqual({event: 'resize', width: 640, height: 480, pixelRatio: 2});
     } finally {
       ResizeObserver.prototype.observe = observe;
+      if (devicePixelRatio) {
+        Object.defineProperty(window, 'devicePixelRatio', devicePixelRatio);
+      } else {
+        Reflect.deleteProperty(window, 'devicePixelRatio');
+      }
     }
   });
 });

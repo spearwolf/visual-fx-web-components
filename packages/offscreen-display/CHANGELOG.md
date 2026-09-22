@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- type declarations for both entry points (`dist/types/`), referenced by `types` in `exports`; `OffscreenWorkerDisplayEvents` describes the listener arguments of the events, `OffscreenDisplayMessage` the messages from the main thread
+- type declarations for both entry points (`dist/types/`), referenced by `types` in `exports`; `OffscreenWorkerDisplayEvents` describes the listener arguments of the events, `OffscreenDisplayMessage` the messages from the main thread, with their properties in `OffscreenDisplayMessageProperties`; every event and every message property carries a description
 - `OffscreenDisplay#dispose()` terminates the worker and stops observing the canvas
 - `OffscreenWorkerDisplay#destroy()` ends the frame loop and releases all listeners, retained events, signals and effects of the display
 - `OffscreenWorkerDisplay#pixelRatio`: the ratio of the canvas pixels to css pixels
@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - the worker kept running after its element was removed from the document
-- an `onFrame` listener that threw ended the animation
+- an `onFrame` listener that threw ended the animation; the loop goes on, and an error that repeats frame after frame reaches the main thread once, until a frame runs without an error
 - `OffscreenWorkerDisplay` ignored the `{isConnected: false}` message, so the worker kept rendering frames after the element was disconnected
 - `OffscreenWorkerDisplay#parseMessageData()` threw on message data that is not an object, such as a number or a string; it ignores such data like `null`
 

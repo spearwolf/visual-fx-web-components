@@ -2,27 +2,38 @@ import {emit, eventize, off, retain} from '@spearwolf/eventize';
 import {batch, createEffect, createSignal, SignalGroup} from '@spearwolf/signalize';
 
 /**
+ * The properties of the messages `OffscreenDisplay` sends to its worker.
+ * @typedef {Object} OffscreenDisplayMessageProperties
+ * @property {OffscreenCanvas} [canvas] the canvas of the element, transferred once in the first message
+ * @property {Record<string, unknown>} [contextAttributes] the attributes for `getContext()`, sent together with `canvas`
+ * @property {boolean} [isConnected] whether the element is connected to the document; frames only run while it is
+ * @property {{width: number, height: number, pixelRatio?: number}} [resize] the size of the canvas in physical pixels
+ *   and their ratio to css pixels
+ */
+
+/**
  * A message from the main thread, as `OffscreenDisplay` sends it: first `canvas` together with `contextAttributes`
  * and the attributes of `getInitialWorkerAttributes()`, later `isConnected` and `resize`. Subclasses may add more.
- * @typedef {{
- *   canvas?: OffscreenCanvas,
- *   contextAttributes?: Record<string, unknown>,
- *   isConnected?: boolean,
- *   resize?: {width: number, height: number, pixelRatio?: number},
- * } & Record<string, unknown>} OffscreenDisplayMessage
+ * @typedef {OffscreenDisplayMessageProperties & Record<string, unknown>} OffscreenDisplayMessage
  */
 
 /**
  * The events of an `OffscreenWorkerDisplay` and the arguments their listeners receive, as an event map for
  * `@spearwolf/eventize` — for example `EventListenerMethods<OffscreenWorkerDisplayEvents>`.
- * @typedef {{
- *   onCanvas: [display: OffscreenWorkerDisplay, contextAttributes: Record<string, unknown> | undefined],
- *   onInit: [display: OffscreenWorkerDisplay],
- *   onResize: [display: OffscreenWorkerDisplay],
- *   onFrame: [display: OffscreenWorkerDisplay],
- * }} OffscreenWorkerDisplayEvents
+ * @typedef {Object} OffscreenWorkerDisplayEvents
+ * @property {[display: OffscreenWorkerDisplay, contextAttributes: Record<string, unknown> | undefined]} onCanvas the
+ *   canvas has arrived, with the attributes for `getContext()`; retained
+ * @property {[display: OffscreenWorkerDisplay]} onInit the canvas is there and the element is connected; retained
+ * @property {[display: OffscreenWorkerDisplay]} onResize the size or the pixel ratio has changed; retained
+ * @property {[display: OffscreenWorkerDisplay]} onFrame once per animation frame, only while the element is connected,
+ *   from the first size on and while the canvas is larger than 0
  */
 
+/**
+ * The worker side of an `OffscreenDisplay`: hand it every message from the main thread with `parseMessageData()` and
+ * listen to its events with `on()` from `@spearwolf/eventize`; `OffscreenWorkerDisplayEvents` lists them together with
+ * the arguments of their listeners.
+ */
 export class OffscreenWorkerDisplay {
   static Canvas = /** @type {const} */ ('onCanvas');
   static Init = /** @type {const} */ ('onInit');
@@ -61,6 +72,12 @@ export class OffscreenWorkerDisplay {
   #hasSize = false;
 
   #destroyed = false;
+
+  // whether the last frame threw and what: an error that repeats frame after frame reaches the main thread only once
+  #lastFrameFailed = false;
+
+  /** @type {unknown} */
+  #lastFrameError = undefined;
 
   // the eventize function signatures cannot resolve the polymorphic `this` type, but the concrete class
   get #emitter() {
@@ -165,8 +182,19 @@ export class OffscreenWorkerDisplay {
           emit(this.#emitter, OffscreenWorkerDisplay.Frame, this);
         }
       }
+      this.#lastFrameFailed = false;
+    } catch (error) {
+      // the first error of a series reaches the main thread as an error event of the worker; the same error in the
+      // following frames is dropped until a frame runs without an error, so a listener that fails in every frame
+      // does not send an error event per frame. Errors count as the same when the main thread would read the same
+      // message; other thrown values when they are the same value.
+      const key = error instanceof Error ? `${error.name}: ${error.message}` : error;
+      const repeated = this.#lastFrameFailed && Object.is(key, this.#lastFrameError);
+      this.#lastFrameFailed = true;
+      this.#lastFrameError = key;
+      if (!repeated) throw error;
     } finally {
-      // a throwing listener must not end the animation; the error still reaches the main thread as an error event of the worker
+      // a throwing listener must not end the animation
       this.#requestAnimationFrame();
     }
   }
@@ -183,7 +211,8 @@ export class OffscreenWorkerDisplay {
   }
 
   /**
-   * @param {OffscreenDisplayMessage | null | undefined} data
+   * @param {OffscreenDisplayMessage | null | undefined} data a message from the main thread; data that is not an
+   *   object is ignored
    */
   parseMessageData(data) {
     if (typeof data !== 'object' || data === null || this.#destroyed) return;

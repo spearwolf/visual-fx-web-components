@@ -54,7 +54,7 @@ Its `createWorker()` starts the worker source `src/rainbow-line.worker.js` of th
 | `slice-cycle-time` | `7` | Seconds for the colors to cycle once through a slice. |
 | `cycle-direction` | `right` | `left` or `right`; any other value is `right`. |
 | `cycle-colors` | — (rainbow) | A list of css colors, separated by whitespace or commas: `#023 #fa3`, `red, blue`, `rgb(255 0 0) hsl(200 80% 50%)`. Invalid colors are skipped with a warning in the console; without a single valid color the line shows the rainbow. |
-| `cycle-colors-repeat` | `1` | How often the `cycle-colors` repeat across the width. A value below `1` counts as its reciprocal: `0.5` repeats them twice, `0.01` a hundred times. Has no effect on the rainbow. |
+| `cycle-colors-repeat` | `1` | How often the `cycle-colors` repeat across the width. A value below `1` counts as its reciprocal: `0.5` repeats them twice, `0.01` a hundred times. The colors repeat at most once per device pixel. Has no effect on the rainbow. |
 
 Numeric attributes that are missing, not a number, or not above `0` use their default. Every attribute can be changed while the element is on the page.
 

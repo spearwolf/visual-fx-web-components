@@ -110,7 +110,7 @@ There are other features not listed here. For a complete example, see the [rainb
   - `onResize(display)` — the size or the pixel ratio has changed
   - `onFrame(display)` — once per animation frame, only while the element is connected, from the first size on and while the canvas is larger than 0
 
-  `onCanvas`, `onInit` and `onResize` are retained: a listener added later still receives the last one. A throwing listener does not end the frame loop, the error arrives as an `error` event at the `Worker`.
+  `onCanvas`, `onInit` and `onResize` are retained: a listener added later still receives the last one. A throwing listener does not end the frame loop. Its error arrives as an `error` event at the `Worker`; the same error in the following frames arrives only once, until a frame runs without an error.
 - Properties: `canvas` (the `OffscreenCanvas`), `canvasWidth` and `canvasHeight` (physical pixels), `pixelRatio` (physical pixels per css pixel), `now` (the time of the current frame in seconds), `isConnected`, `ready` (canvas there and connected)
 - `destroy()` — ends the frame loop and releases all listeners, signals and effects; the display ignores every message afterwards
 

@@ -1,5 +1,5 @@
 /** @import {EventListenerMethods} from '@spearwolf/eventize' */
-/** @import {OffscreenWorkerDisplayEvents} from '@spearwolf/offscreen-display/worker.js' */
+/** @import {OffscreenDisplayMessage, OffscreenWorkerDisplayEvents} from '@spearwolf/offscreen-display/worker.js' */
 import {on} from '@spearwolf/eventize';
 import {OffscreenWorkerDisplay} from '@spearwolf/offscreen-display/worker.js';
 import {
@@ -8,6 +8,26 @@ import {
   DEFAULT_SLICE_CYCLE_TIME,
   toPositiveNumber,
 } from './attributes.js';
+
+/**
+ * The attributes of `<rainbow-line>` as `RainbowLineElement` sends them to its worker. The numeric ones may also be
+ * strings; a value that is not a positive number uses the default.
+ * @typedef {Object} RainbowLineAttributes
+ * @property {number | string} [color-slice-width] the width of a color slice in css pixels; a value below `1` is a
+ *   fraction of the line width
+ * @property {number | string} [slice-cycle-time] the seconds for the colors to cycle once through a slice
+ * @property {1 | -1} [cycle-direction] `1` moves the colors to the left, `-1` to the right
+ * @property {string} [cycle-colors] a list of css colors, separated by whitespace or commas; without a valid color the
+ *   line shows the rainbow
+ * @property {number | string} [cycle-colors-repeat] how often the `cycle-colors` repeat across the width; a value
+ *   below `1` counts as its reciprocal
+ */
+
+/**
+ * A message to the worker of `<rainbow-line>`: the messages of `OffscreenDisplay` together with the attributes of the
+ * element.
+ * @typedef {OffscreenDisplayMessage & RainbowLineAttributes} RainbowLineMessage
+ */
 
 const display = new OffscreenWorkerDisplay();
 
@@ -50,10 +70,13 @@ let slicesCtx = null;
 
 /**
  * A cycle-colors-repeat below 1 counts as its reciprocal: 0.5 repeats the colors twice, 0.01 a hundred times.
+ * A color cycle cannot be drawn shorter than one physical pixel, so the repetitions end at the canvas width — which
+ * also keeps the reciprocal of a denormalized number (Infinity) and huge values out of the arithmetic of the strip.
  * @param {number} value
+ * @param {number} width the canvas width in physical pixels
  */
-function effectiveRepeat(value) {
-  return value < 1 ? 1 / value : value;
+function effectiveRepeat(value, width) {
+  return Math.min(value < 1 ? 1 / value : value, width);
 }
 
 on(
@@ -70,7 +93,7 @@ on(
         Math.max(1, Math.round(colorSliceWidth < 1 ? colorSliceWidth * w : colorSliceWidth * pixelRatio)),
       );
       const sliceCount = Math.ceil(w / sliceWidth);
-      const repeat = cycleColors === undefined ? 1 : effectiveRepeat(cycleColorsRepeat);
+      const repeat = cycleColors === undefined ? 1 : effectiveRepeat(cycleColorsRepeat, w);
 
       updateStrip(w, sliceWidth, sliceCount, repeat);
       updateSlices(sliceCount);
@@ -89,7 +112,8 @@ on(
 );
 
 /**
- * @param {Record<string, any> | null | undefined} data
+ * @param {RainbowLineMessage | null | undefined} data a message from the main thread; data that is not an object is
+ *   ignored
  */
 export function parseMessageData(data) {
   display.parseMessageData(data);

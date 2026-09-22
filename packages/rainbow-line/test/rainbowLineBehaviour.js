@@ -196,8 +196,15 @@ export function describeRainbowLine(variant) {
       await expectRedAndBlueOnly(line);
     });
 
+    test.each(['1e-320', '1e308'])('draws the cycle-colors for a cycle-colors-repeat of %s', async (value) => {
+      const line = mountRainbowLine({'cycle-colors': '#ff0000 #0000ff', 'cycle-colors-repeat': value});
+      const row = await readDrawnRow(line);
+
+      expect(row.every(isRedOrBlueMix)).toBe(true);
+    });
+
     test.each(['red, blue', 'red,blue', '#ff0000\t#0000ff', '#ff0000\n  #0000ff'])(
-      'accepts cycle-colors separated by commas, tabs and line breaks',
+      'accepts cycle-colors separated by commas, tabs and line breaks: %j',
       async (value) => {
         const line = mountRainbowLine({'cycle-colors': value});
 

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- type declarations for the source modules `./RainbowLineElement.js` and `./RainbowLineWorkerDisplay.js`
+- type declarations for the source modules `./RainbowLineElement.js` and `./RainbowLineWorkerDisplay.js`; `parseMessageData()` takes a `RainbowLineMessage`, whose `RainbowLineAttributes` describe the attributes the element sends to its worker
 
 ### Changed
 
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - sharp on screens with a `devicePixelRatio` above 1: the canvas has physical pixels, `color-slice-width` stays in css pixels
 - a removed element terminates its worker
 - the `./rainbow-line.worker.js` subpath export pointed to a non-existent `rainbow-line-worker.js`
-- a `color-slice-width`, `slice-cycle-time` or `cycle-colors-repeat` that is `0`, negative or not a number uses the default; slices are at least one device pixel wide, so every value keeps the line animating
+- a `color-slice-width`, `slice-cycle-time` or `cycle-colors-repeat` that is `0`, negative or not a number uses the default; slices are at least one device pixel wide, so every value keeps the line animating, and the `cycle-colors` repeat at most once per device pixel, so no value leaves the line black
 - removing a numeric attribute sets it back to its default
 - `cycle-colors` accepts colors separated by commas, tabs and line breaks; invalid colors are skipped with a console warning, and without any valid color the line shows the rainbow
 - `cycle-colors-repeat` takes effect when it changes while the element is connected

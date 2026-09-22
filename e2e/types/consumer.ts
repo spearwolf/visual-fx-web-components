@@ -58,3 +58,6 @@ export class MyRainbowLine extends RainbowLineElement {
 }
 
 parseMessageData({'cycle-colors': 'red blue'});
+
+// @ts-expect-error cycle-direction is 1 (left) or -1 (right)
+parseMessageData({'cycle-direction': 'left'});

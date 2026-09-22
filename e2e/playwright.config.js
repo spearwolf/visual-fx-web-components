@@ -14,6 +14,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', {open: 'never'}]] : 'list',
+  // Firefox starts workers and takes element screenshots slowly while the machine is busy (the vitest browser tests
+  // and both playwright projects running at once); the assertions wait for a state that arrives, so they get more time
+  expect: {timeout: 15_000},
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'retain-on-failure',

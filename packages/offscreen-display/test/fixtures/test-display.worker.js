@@ -11,6 +11,7 @@ let ctx;
 let fillStyle = '#ff0000';
 let frames = 0;
 let throwInNextFrame = false;
+let throwInEveryFrame = false;
 
 on(display, {
   onCanvas({canvas}, contextAttributes) {
@@ -31,6 +32,10 @@ on(display, {
       throwInNextFrame = false;
       throw new Error('boom from onFrame');
     }
+    if (throwInEveryFrame) {
+      self.postMessage({event: 'failingFrame'});
+      throw new Error(throwInEveryFrame);
+    }
     ctx.fillStyle = fillStyle;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     self.postMessage({event: 'frame', frame: ++frames, now, width: canvasWidth, height: canvasHeight, pixelRatio});
@@ -44,6 +49,10 @@ self.addEventListener('message', ({data}) => {
   }
   if (data.throwInNextFrame) {
     throwInNextFrame = true;
+    return;
+  }
+  if ('throwInEveryFrame' in data) {
+    throwInEveryFrame = data.throwInEveryFrame;
     return;
   }
   if (data.destroy) {
