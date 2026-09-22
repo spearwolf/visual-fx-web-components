@@ -1,2 +1,8 @@
 packages:
   - 'packages/*'
+
+ignoreWorkspaceRootCheck: true
+
+allowBuilds:
+  esbuild: true
+  nx: true

@@ -1,8 +1,0 @@
-node_modules
-build
-dist
-lib
-coverage
-playwright-report
-test-reports
-tests

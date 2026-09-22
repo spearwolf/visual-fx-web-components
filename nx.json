@@ -1,17 +1,20 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
+  "parallel": 8,
+  "plugins": [
+    {
+      "plugin": "@nx/eslint/plugin",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"],
-        "parallel": 8
+        "targetName": "lint"
       }
     }
-  },
+  ],
   "defaultBase": "main",
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
     "sharedGlobals": [
       "{workspaceRoot}/scripts/**/*",
       "{workspaceRoot}/package.json",
@@ -21,32 +24,51 @@
   },
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build", "^default", "default"],
-      "inputs": ["^default", "default"]
+      "cache": true,
+      "dependsOn": [
+        "^build",
+        "^default",
+        "default"
+      ],
+      "inputs": [
+        "^default",
+        "default"
+      ]
     },
     "lint": {
+      "cache": true,
       "inputs": [
         "default",
         "{workspaceRoot}/.prettierrc",
         "{workspaceRoot}/.prettierignore",
-        "{workspaceRoot}/.eslintrc.json",
-        "{workspaceRoot}/.eslintignore"
+        "{workspaceRoot}/eslint.config.mjs"
       ]
     },
     "test": {
-      "dependsOn": ["^build"],
-      "inputs": ["default"]
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "default"
+      ]
     },
     "buildNpmPkg": {
       "executor": "nx:run-script",
-      "dependsOn": ["^build", "build", "default"],
+      "dependsOn": [
+        "^build",
+        "build",
+        "default"
+      ],
       "options": {
         "script": "buildNpmPkg"
       }
     },
     "publishNpmPkg": {
       "executor": "nx:run-script",
-      "dependsOn": ["buildNpmPkg"],
+      "dependsOn": [
+        "buildNpmPkg"
+      ],
       "options": {
         "script": "publishNpmPkg"
       }

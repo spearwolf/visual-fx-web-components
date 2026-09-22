@@ -5,13 +5,6 @@
   "sourceRoot": "{projectRoot}/src",
   "projectType": "library",
   "targets": {
-    "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["{projectRoot}/**/*.js"]
-      }
-    },
     "test": {
       "executor": "nx:run-script",
       "options": {
