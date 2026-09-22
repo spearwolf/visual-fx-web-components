@@ -15,6 +15,11 @@ export class OffscreenWorkerDisplay {
 
   #contextAttributes = undefined;
 
+  // the eventize function signatures cannot resolve the polymorphic `this` type, but the concrete class
+  get #emitter() {
+    return /** @type {OffscreenWorkerDisplay} */ (this);
+  }
+
   constructor() {
     eventize(this);
 
@@ -49,22 +54,22 @@ export class OffscreenWorkerDisplay {
 
     this.now = 0;
 
-    retain(this, [OffscreenWorkerDisplay.Canvas, OffscreenWorkerDisplay.Init, OffscreenWorkerDisplay.Resize]);
+    retain(this.#emitter, [OffscreenWorkerDisplay.Canvas, OffscreenWorkerDisplay.Init, OffscreenWorkerDisplay.Resize]);
 
     createEffect(() => {
       if (this.canvas) {
-        emit(this, OffscreenWorkerDisplay.Canvas, this, this.#contextAttributes);
+        emit(this.#emitter, OffscreenWorkerDisplay.Canvas, this, this.#contextAttributes);
       }
     }, [canvas$]);
 
     createEffect(() => {
       if (this.ready) {
-        emit(this, OffscreenWorkerDisplay.Init, this);
+        emit(this.#emitter, OffscreenWorkerDisplay.Init, this);
       }
     }, [canvas$, isConnected$]);
 
     createEffect(() => {
-      emit(this, OffscreenWorkerDisplay.Resize, this);
+      emit(this.#emitter, OffscreenWorkerDisplay.Resize, this);
     }, [canvasWidth$, canvasHeight$]);
   }
 
@@ -86,7 +91,7 @@ export class OffscreenWorkerDisplay {
       this.now = now / 1000;
 
       if (this.canvasWidth > 0 && this.canvasHeight > 0) {
-        emit(this, OffscreenWorkerDisplay.Frame, this);
+        emit(this.#emitter, OffscreenWorkerDisplay.Frame, this);
       }
     }
 
@@ -101,7 +106,7 @@ export class OffscreenWorkerDisplay {
       this.canvas = data.canvas;
     }
 
-    if (data.isConnected) {
+    if ('isConnected' in data) {
       if (this.isConnected !== data.isConnected) {
         this.isConnected = data.isConnected;
         if (this.isConnected) {

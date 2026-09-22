@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-...
+### Fixed
+
+- the `./rainbow-line.worker.js` subpath export pointed to a non-existent `rainbow-line-worker.js`
+
+### Changed
+
+- `bundle.js`: the inlined worker is built for the same browser targets as the element instead of `es2017`, which makes the bundle about 10% smaller
 
 ## [0.4.0] - 2024-12-12
 

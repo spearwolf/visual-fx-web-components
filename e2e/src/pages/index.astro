@@ -1,0 +1,32 @@
+---
+import RainbowLine from '@spearwolf/astro-rainbow-line';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>astro-rainbow-line e2e</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+      }
+      section {
+        width: 360px;
+        margin-bottom: 40px;
+        --rainbow-line-height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="default">
+      <RainbowLine />
+    </section>
+    <section id="custom">
+      <RainbowLine cycleColors={['#ff0000', '#0000ff']} colorSliceWidth={60} />
+    </section>
+    <section id="shadow">
+      <RainbowLine shadow />
+    </section>
+  </body>
+</html>

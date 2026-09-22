@@ -27,8 +27,8 @@
     "./rainbow-line.js": {
       "default": "./rainbow-line.js"
     },
-    "./rainbow-line-worker.js": {
-      "default": "./rainbow-line-worker.js"
+    "./rainbow-line.worker.js": {
+      "default": "./rainbow-line.worker.js"
     }
   },
   "scripts": {
@@ -37,13 +37,14 @@
     "build:pkg:prepare": "pnpm node ./scripts/buildPackage.mjs",
     "build:pkg:json": "pnpm node ../../scripts/makePackageJson.mjs",
     "build:pkg:clean": "pnpm exec rimraf .npm-pkg",
-    "clean": "pnpm exec rimraf dist rainbow-line.js rainbow-line.worker.js .npm-pkg",
+    "clean": "pnpm exec rimraf dist bundle.js rainbow-line.js rainbow-line.worker.js .npm-pkg",
     "update": "pnpm dlx npm-check --update",
     "buildNpmPkg": "pnpm exec run-s build:pkg:clean build:pkg:prepare build:pkg:json",
-    "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs .npm-pkg"
+    "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs .npm-pkg",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
-    "esbuild-plugin-inline-worker": "^0.1.1",
     "vite": "^8.3.0"
   },
   "dependencies": {

@@ -1,42 +1,52 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "parallel": 8,
-  "plugins": [
-    {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "lint"
-      }
-    }
-  ],
   "defaultBase": "main",
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "!{projectRoot}/dist/**/*",
+      "!{projectRoot}/.npm-pkg/**/*",
+      "!{projectRoot}/.astro/**/*",
+      "!{projectRoot}/test-results/**/*",
+      "!{projectRoot}/playwright-report/**/*",
+      "sharedGlobals"
+    ],
     "sharedGlobals": [
       "{workspaceRoot}/scripts/**/*",
+      "{workspaceRoot}/testing/**/*",
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/pnpm-lock.yaml",
-      "{workspaceRoot}/tsconfig.json"
+      "{workspaceRoot}/vitest.shared.mjs"
     ]
   },
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": ["^build", "^default", "default"],
+      "dependsOn": ["^build"],
       "inputs": ["^default", "default"]
     },
-    "lint": {
-      "cache": true,
-      "inputs": ["default", "{workspaceRoot}/.prettierrc", "{workspaceRoot}/.prettierignore", "{workspaceRoot}/eslint.config.mjs"]
-    },
     "test": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      },
       "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["default"]
+      "dependsOn": ["build", "^build"],
+      "inputs": ["^default", "default"]
+    },
+    "e2e": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "e2e"
+      },
+      "cache": true,
+      "dependsOn": ["build", "^buildNpmPkg"],
+      "inputs": ["^default", "default"]
     },
     "buildNpmPkg": {
       "executor": "nx:run-script",
-      "dependsOn": ["^build", "build", "default"],
+      "dependsOn": ["^build", "build"],
       "options": {
         "script": "buildNpmPkg"
       }

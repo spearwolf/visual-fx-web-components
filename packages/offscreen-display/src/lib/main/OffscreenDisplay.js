@@ -57,7 +57,7 @@ export class OffscreenDisplay extends HTMLElement {
    * @example
    * ```js
    *   createWorker() {
-   *     return new Worker(new URL("./rainbow-line-worker.js", import.meta.url), {type: "module"});
+   *     return new Worker(new URL("./rainbow-line.worker.js", import.meta.url), {type: "module"});
    *   }
    * ```
    */
@@ -136,7 +136,7 @@ export class OffscreenDisplay extends HTMLElement {
   asNumberValue(attributeName, defaultValue) {
     if (this.hasAttribute(attributeName)) {
       const value = parseFloat(this.getAttribute(attributeName));
-      return isNaN(value) ? defaultValue : value;
+      return Number.isNaN(value) ? defaultValue : value;
     }
     return defaultValue;
   }

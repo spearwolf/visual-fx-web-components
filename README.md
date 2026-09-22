@@ -16,11 +16,25 @@ Just use ...
 $ pnpm install
 ```
 
-... to install or refresh all the dependencies. After that you can simply build and test all packages with ..
+... to install or refresh all the dependencies. The tests run in a headless chromium, which has to be installed once with ..
 
 ```sh
-$ pnpm cbt  # => clean build test
+$ pnpm playwright:install
 ```
+
+After that you can simply build and test all packages with ..
+
+```sh
+$ pnpm cbt  # => clean build test e2e
+```
+
+| command | what it does |
+|-|-|
+| `pnpm lint` / `pnpm format` | check / fix formatting and lint rules with [biome](https://biomejs.dev/) |
+| `pnpm typecheck` | type check the javascript sources with typescript |
+| `pnpm test` | blackbox tests of every package against its build output ([vitest](https://vitest.dev/) browser mode) |
+| `pnpm e2e` | the published packages used together, like a consumer would ([playwright](https://playwright.dev/)) |
+| `pnpm ci` | all of the above, as in the github workflow |
 
 > 🔎 This project does not currently use a separate issue tracking system; instead, TODO, FIXME, and XXX issues are written directly as comments in the source code, without any further indirection.
 > An overview of open issues can be found in [TODO.md](TODO.md).

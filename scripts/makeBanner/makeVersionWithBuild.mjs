@@ -1,12 +1,6 @@
 export function makeVersionWithBuild(build = 'vanilla') {
   const today = new Date();
-  let month = today.getUTCMonth() + 1;
-  if (month < 10) {
-    month = `0${month}`;
-  }
-  let date = today.getUTCDate();
-  if (date < 10) {
-    date = `0${date}`;
-  }
+  const month = String(today.getUTCMonth() + 1).padStart(2, '0');
+  const date = String(today.getUTCDate()).padStart(2, '0');
   return (version) => `${version}+${build}.${today.getUTCFullYear()}${month}${date}`;
 }

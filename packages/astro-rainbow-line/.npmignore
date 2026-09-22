@@ -1,3 +1,4 @@
 node_modules
-.eslintignore
 project.json
+test
+vitest.config.mjs

@@ -1,0 +1,19 @@
+{
+  "name": "@spearwolf/visual-fx-e2e",
+  "description": "end-to-end tests of the published packages, used together like a consumer would",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build",
+    "e2e": "playwright test",
+    "serve": "pnpm node server.mjs",
+    "clean": "pnpm exec rimraf dist .astro test-results playwright-report"
+  },
+  "devDependencies": {
+    "@spearwolf/astro-rainbow-line": "workspace:*",
+    "@spearwolf/offscreen-display": "workspace:*",
+    "astro": "^7.3.3",
+    "rainbow-line": "workspace:*"
+  }
+}

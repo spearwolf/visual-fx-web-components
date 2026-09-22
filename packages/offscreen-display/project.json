@@ -4,13 +4,13 @@
   "root": "packages/offscreen-display",
   "sourceRoot": "{projectRoot}/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
-    "test": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "test"
-      }
+    "build": {
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "buildNpmPkg": {
+      "outputs": ["{projectRoot}/.npm-pkg"]
     }
-  },
-  "tags": []
+  }
 }

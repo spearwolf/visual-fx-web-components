@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>rainbow-line.js + rainbow-line.worker.js</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+      }
+      rainbow-line {
+        width: 360px;
+        height: 20px;
+        margin-bottom: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <rainbow-line id="default"></rainbow-line>
+    <rainbow-line id="custom" cycle-colors="#ff0000 #0000ff" color-slice-width="60"></rainbow-line>
+    <script type="module" src="/pkg/rainbow-line/rainbow-line.js"></script>
+  </body>
+</html>

@@ -12,18 +12,28 @@ Run from the repo root (Node >= 24.15, pnpm 11, nx 23):
 
 ```sh
 pnpm install
-pnpm cbt                         # clean + build + test (all projects)
-pnpm build | pnpm lint | pnpm test
-pnpm ci                          # what GitHub Actions runs: build, lint, test
-pnpm nx build rainbow-line       # single project (nx project names are unscoped: offscreen-display, rainbow-line, astro-rainbow-line)
-pnpm nx lint offscreen-display
+pnpm playwright:install          # once: the headless chromium used by vitest and playwright
+pnpm cbt                         # clean + build + test + e2e (all projects)
+pnpm build | pnpm test | pnpm e2e
+pnpm lint | pnpm format          # biome check / biome check --write (whole repo, not an nx target)
+pnpm typecheck                   # tsc (TypeScript 7) with checkJs over sources, scripts and e2e
+pnpm ci                          # what GitHub Actions runs: lint, typecheck, build, test, e2e
+pnpm nx build rainbow-line       # single project (nx project names are unscoped: offscreen-display, rainbow-line, astro-rainbow-line, e2e)
+pnpm nx test offscreen-display
 pnpm nx dev rainbow-line         # vite dev server on packages/rainbow-line/index.html
 pnpm make:todo                   # regenerate TODO.md from TODO/FIXME/XXX comments
 ```
 
-There are no real tests yet: `offscreen-display`'s `test` script is an `echo` placeholder.
+Formatting and linting is Biome (`biome.json`): 130 cols, single quotes, trailing commas, no bracket spacing; `useImportExtensions` requires explicit `.js` extensions on relative imports. `.astro` files are checked too (full HTML support); `noTsIgnore` is off for them, because `@ts-expect-error` would break in consumer projects that have Astro's types.
 
-Linting is ESLint 10 (root flat config `eslint.config.mjs`; nx infers the `lint` targets via `@nx/eslint/plugin`) with Prettier enforced as an ESLint error: 130 cols, single quotes, trailing commas, no bracket spacing. `eslint-plugin-require-extensions` requires explicit `.js` extensions on relative imports (loaded through `@eslint/compat`, since it still uses a context API that ESLint 10 removed).
+`tsconfig.json` is only for `pnpm typecheck` (no emit). It maps `@spearwolf/offscreen-display` to its `src/`, so the check never sees build output. Test files are not type checked, since they import build output.
+
+## Tests
+
+Every test runs against build output, not sources: nx `test` depends on `build`, `e2e` on `^buildNpmPkg`.
+
+- **Package tests** (`packages/*/test/`, `pnpm nx test <project>`): Vitest 5. `offscreen-display` and `rainbow-line` use browser mode in headless chromium via `@vitest/browser-playwright` (shared config in `vitest.shared.mjs`). A canvas transferred to a worker cannot be read back from the main thread, so pixel assertions screenshot the element and analyse one row with the helpers in `testing/pixels.js`. `astro-rainbow-line` renders the component with Astro's container API in node.
+- **e2e** (`e2e/`, nx project `e2e`, `pnpm e2e`): Playwright against `e2e/server.mjs`, a plain static server without transforms. It serves the `.npm-pkg/` directories of the packages, static fixture pages (`e2e/pages/`) and a small Astro site (`e2e/src/`, built by the `e2e:build` target) that uses `<RainbowLine>` and hosts the vendored rainbow-line script. `npm-packages.spec.js` checks the publishable `package.json` files and that every `exports` target exists.
 
 pnpm 11 reads its settings from `pnpm-workspace.yaml` (not `.npmrc`); dependencies that need install scripts must be listed under `allowBuilds` there. There is no project `.npmrc`: in CI, `actions/setup-node` (with `registry-url`) writes the npm auth from the `NPM_AUTH_TOKEN` secret, passed as `NODE_AUTH_TOKEN`.
 
@@ -38,7 +48,7 @@ The core idea is **rendering a canvas inside a Web Worker via `OffscreenCanvas`*
 
 - **`packages/rainbow-line`** — the `<rainbow-line>` element built on the above. `RainbowLineElement` (main) maps HTML attributes to worker messages (`attributeChangedCallback` → `postMessage`); `RainbowLineWorkerDisplay.js` does the 2D-canvas drawing in `onFrame`; `rainbow-line.worker.js` is the worker entry. Build outputs land in the **package root**, not `dist/`:
   - `rainbow-line.js` + `rainbow-line.worker.js` — element loads the worker as a separate file via `new URL(..., import.meta.url)`.
-  - `bundle.js` — the default export; `src/bundle.js` subclasses the element and inlines the worker with `esbuild-plugin-inline-worker`, so it is a single self-contained file.
+  - `bundle.js` — the default export; `src/bundle.js` subclasses the element and inlines the worker via `scripts/esbuildInlineWorkerPlugin.mjs` (a `*.worker.js` import becomes a factory for a classic blob-url worker, bundled as iife with the same targets), so it is a single self-contained file.
   - Depends on `@spearwolf/offscreen-display` via `workspace:*`, so nx builds offscreen-display first.
 
 - **`packages/astro-rainbow-line`** (`@spearwolf/astro-rainbow-line`) — a single `RainbowLine.astro` component that renders `<rainbow-line>` elements and loads the script from `${BASE_URL}/js/rainbow-line-vX.Y.Z.js` (overridable via `RAINBOW_LINE_JS`). The consumer must host that file; a copy of the built rainbow-line bundle is committed here as `rainbow-line-v<version>.js`. When bumping rainbow-line, update that vendored file, the default path in `RainbowLine.astro`, and the README.

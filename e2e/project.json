@@ -1,0 +1,12 @@
+{
+  "name": "e2e",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "root": "e2e",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "outputs": ["{projectRoot}/dist"]
+    }
+  },
+  "tags": []
+}

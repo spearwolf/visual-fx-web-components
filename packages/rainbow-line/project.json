@@ -11,7 +11,23 @@
         "script": "dev"
       },
       "dependsOn": ["^build"]
+    },
+    "build": {
+      "outputs": ["{projectRoot}/bundle.js", "{projectRoot}/rainbow-line.js", "{projectRoot}/rainbow-line.worker.js"]
+    },
+    "buildNpmPkg": {
+      "outputs": ["{projectRoot}/.npm-pkg"]
     }
   },
-  "tags": []
+  "tags": [],
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "!{projectRoot}/.npm-pkg/**/*",
+      "!{projectRoot}/bundle.js",
+      "!{projectRoot}/rainbow-line.js",
+      "!{projectRoot}/rainbow-line.worker.js",
+      "sharedGlobals"
+    ]
+  }
 }

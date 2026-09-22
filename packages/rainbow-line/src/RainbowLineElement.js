@@ -66,7 +66,7 @@ export class RainbowLineElement extends OffscreenDisplay {
     const value = name === 'cycle-direction' ? toCycleDirection(newValue) : parseFloat(newValue);
 
     if (typeof value !== 'number') return;
-    if (isNaN(value)) return;
+    if (Number.isNaN(value)) return;
 
     // console.log("attributeChangedCallback", name, value);
 

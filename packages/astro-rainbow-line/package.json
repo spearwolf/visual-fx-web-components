@@ -11,6 +11,11 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/spearwolf/visual-fx-web-components",
   "scripts": {
-    "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs ."
+    "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "astro": "^7.3.3"
   }
 }

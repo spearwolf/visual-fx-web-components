@@ -6,7 +6,7 @@ const display = new OffscreenWorkerDisplay();
 let colorSliceWidth = 10;
 let sliceCycleTime = 7;
 let cycleDirection = -1; // right:-1 or left:1
-let cycleColors = undefined;
+let cycleColors;
 let cycleColorsRepeat = 1;
 
 let ctx = null;
@@ -56,7 +56,7 @@ export function parseMessageData(data) {
     cycleDirection = data['cycle-direction'];
   }
   if ('cycle-colors' in data) {
-    let colors = data['cycle-colors'];
+    const colors = data['cycle-colors'];
     if (colors === undefined) {
       cycleColors = undefined;
     } else {
@@ -88,7 +88,7 @@ function createLinearGradientImage(cycleColors) {
   const gradient = ctx.createLinearGradient(0, 0, gradientCanvas.width, gradientCanvas.height);
 
   let x = 0;
-  let step = 1 / cycleColors.length;
+  const step = 1 / cycleColors.length;
 
   for (let i = 0; i < cycleColors.length; i++) {
     gradient.addColorStop(x, cycleColors[i]);

@@ -19,8 +19,18 @@ jobs:
         with:
           run_install: true
 
+      - name: Install playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Run all checks
         run: pnpm run ci
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7
 
   publish:
     name: publish packages

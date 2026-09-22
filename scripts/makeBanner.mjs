@@ -4,7 +4,7 @@ import {banner} from './makeBanner/banner.mjs';
 import {makeVersionWithBuild} from './makeBanner/makeVersionWithBuild.mjs';
 
 export function makeBanner(projectDir, build) {
-  const packageJson = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json')));
+  const packageJson = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8'));
   const version = makeVersionWithBuild(build)(packageJson.version);
   return banner({...packageJson, version});
 }

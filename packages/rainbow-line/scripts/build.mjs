@@ -1,14 +1,15 @@
-import {build} from 'esbuild';
-import inlineWorkerPlugin from 'esbuild-plugin-inline-worker';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {build} from 'esbuild';
 
+import {inlineWorkerPlugin} from '../../../scripts/esbuildInlineWorkerPlugin.mjs';
 import {makeBanner} from '../../../scripts/makeBanner.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const banner = {js: makeBanner(resolve(__dirname, '..'), 'vanilla')};
 
+/** @type {import('esbuild').BuildOptions} */
 const sharedBuildOptions = {
   absWorkingDir: resolve(__dirname, '..'),
   banner,
