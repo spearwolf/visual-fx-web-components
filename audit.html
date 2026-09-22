@@ -11,7 +11,7 @@
     "generator": "js-ts-project-audit",
     "lang": "de",
     "templateVersion": "2.0.0",
-    "generatedAt": "2026-09-22T11:45:20.111Z"
+    "generatedAt": "2026-09-22T15:30:02.740Z"
   },
   "summary": {
     "project": "visual-fx-web-components",
@@ -77,36 +77,29 @@
     "domains": {
       "code": {
         "executiveSummary": "Jede `\u003crainbow-line>`, die aus dem DOM verschwindet, lässt ihren Worker-Thread samt OffscreenCanvas zurück: nach 30 Zyklen »anlegen + entfernen« leben 32 Worker im Tab, die Bibliothek bietet keinen Weg, sie zu beenden. Ein `color-slice-width` von `0` (oder ein Wert, der auf 0 Pixel rundet) schickt den Worker in eine Endlosschleife bei 100 % CPU, und weil eine Exception im Frame-Listener den rAF-Loop nie wieder anstößt, friert die Animation auch bei einer ungültigen Farbe in `cycle-colors` dauerhaft ein. Der Zeichenpfad selbst ist korrekt, aber teuer: pro Frame ein `fillStyle`-String-Parse plus `fillRect` je Farbscheibe, auf dem Main-Thread dazu ein `getBoundingClientRect()` pro Frame und Element, und die Canvas-Auflösung ignoriert `devicePixelRatio`.",
-        "score": 95,
-        "penalty": 0.5,
+        "score": 100,
+        "penalty": 0,
         "bySeverity": {
           "critical": 0,
           "high": 0,
           "medium": 0,
-          "low": 1,
+          "low": 0,
           "info": 0
         },
-        "byCategory": {
-          "correctness": 1
-        }
+        "byCategory": {}
       },
       "harness": {
         "executiveSummary": "Das Gerüst ist frisch renoviert und grün: Biome, Typecheck, 33 Package-Tests im Browser und 16 E2E-Tests laufen sauber, alle Dependencies sind aktuell. Was fehlt, ist die Auslieferung des Geprüften: beide Changelogs führen Fixes unter »Unreleased«, während npm noch den kaputten Worker-Export von `rainbow-line@0.4.0` und den nie stoppenden Frame-Loop von `offscreen-display@0.2.0` ausliefert. Die README von `offscreen-display` zeigt ein Beispiel, das seit eventize 6 mit einem TypeError abbricht, und TypeScript-Konsumenten bekommen keine Typen, weil kein `.d.ts` mitgeliefert wird.",
-        "score": 98,
-        "penalty": 1.5,
+        "score": 100,
+        "penalty": 0,
         "bySeverity": {
           "critical": 0,
           "high": 0,
           "medium": 0,
-          "low": 3,
-          "info": 4
+          "low": 0,
+          "info": 0
         },
-        "byCategory": {
-          "testing": 2,
-          "types": 2,
-          "consistency": 1,
-          "build": 2
-        }
+        "byCategory": {}
       }
     },
     "packages": [
@@ -121,8 +114,8 @@
         "name": "rainbow-line",
         "path": "packages/rainbow-line",
         "reviewedLoc": 291,
-        "findings": 1,
-        "score": 91
+        "findings": 0,
+        "score": 100
       },
       {
         "name": "astro-rainbow-line",
@@ -140,7 +133,7 @@
       }
     ],
     "scoreModel": 2,
-    "score": 96,
+    "score": 100,
     "scoring": {
       "model": 2,
       "weights": {
@@ -158,31 +151,17 @@
       "critical": 0,
       "high": 0,
       "medium": 0,
-      "low": 4,
-      "info": 4
+      "low": 0,
+      "info": 0
     },
-    "byCategory": {
-      "testing": 2,
-      "correctness": 1,
-      "types": 2,
-      "consistency": 1,
-      "build": 2
-    },
-    "byComponent": {
-      "testing": 2,
-      "rainbow-line": 2,
-      "offscreen-display-worker": 1,
-      "astro-rainbow-line": 1,
-      "build-release": 2
-    },
+    "byCategory": {},
+    "byComponent": {},
     "counts": {
-      "findings": 8,
-      "improvements": 1,
-      "byStatus": {
-        "new": 8
-      }
+      "findings": 0,
+      "improvements": 0,
+      "byStatus": {}
     },
-    "resolvedCount": 19,
+    "resolvedCount": 28,
     "lastRun": {
       "source": "remediation",
       "date": "2026-09-22",
@@ -345,183 +324,16 @@
       ]
     }
   },
-  "findings": [
-    {
-      "id": "TEST-002",
-      "category": "testing",
-      "domain": "harness",
-      "component": "testing",
-      "severity": "low",
-      "title": "Fallback-Test der Canvas-Größe unterscheidet bei devicePixelRatio 1 die beiden Messzweige nicht",
-      "location": "packages/offscreen-display/test/offscreen-display.test.js:269",
-      "description": "Der Test »measures the canvas in css pixels times devicePixelRatio where the device pixel box is not supported« läuft mit devicePixelRatio 1. Content-Box × Ratio und Device-Pixel-Box liefern dann dieselbe Größe, der Test würde also nicht rot, wenn der Code den Zweig wieder am falschen Merkmal festmachte. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "Den Test mit einer emulierten Ratio ungleich 1 fahren (etwa per Playwright-deviceScaleFactor im Vitest-Browser-Provider) oder `devicePixelRatio` im Test überschreiben und die erwartete Größe daraus ableiten.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "TEST-003",
-      "category": "testing",
-      "domain": "harness",
-      "component": "testing",
-      "severity": "low",
-      "title": "test.each ohne Platzhalter erzeugt vier gleichnamige Tests",
-      "location": "packages/rainbow-line/test/rainbowLineBehaviour.js:199",
-      "description": "»accepts cycle-colors separated by commas, tabs and line breaks« läuft über vier Werte, der Name enthält keinen Platzhalter. Im Report stehen vier identische Namen; welcher Fall rot ist, zeigt erst die Fehlermeldung. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "`: %j` an den Testnamen hängen.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "CORR-006",
-      "category": "correctness",
-      "domain": "code",
-      "package": "rainbow-line",
-      "component": "rainbow-line",
-      "severity": "low",
-      "title": "Denormalisierte Werte für cycle-colors-repeat ergeben einen unendlichen Kehrwert",
-      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:55",
-      "description": "`effectiveRepeat()` rechnet für Werte unter 1 den Kehrwert. Ein positiver, denormalisierter Wert wie `cycle-colors-repeat=\"1e-320\"` besteht die Positivprüfung und ergibt `Infinity`; das Bild bleibt schwarz stehen. Kein Hänger, kein Absturz. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "Das Ergebnis von `effectiveRepeat()` auf einen endlichen Höchstwert klemmen oder nicht endliche Ergebnisse auf den Default zurückfallen lassen.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "TYPES-002",
-      "category": "types",
-      "domain": "harness",
-      "component": "rainbow-line",
-      "severity": "low",
-      "title": "parseMessageData veröffentlicht Record\u003cstring, any> in der Typdeklaration",
-      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:92",
-      "description": "Der Parameter von `parseMessageData()` ist als `Record\u003cstring, any> | null | undefined` annotiert und landet so in der veröffentlichten `.d.ts` des Quell-Subpfads `./RainbowLineWorkerDisplay.js`. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "Auf `Record\u003cstring, number | string | null | undefined>` oder einen benannten Nachrichtentyp einengen.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "TYPES-003",
-      "category": "types",
-      "domain": "harness",
-      "component": "offscreen-display-worker",
-      "severity": "info",
-      "title": "Beschreibungen der @typedef fehlen in der erzeugten .d.ts",
-      "location": "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:7",
-      "locations": [
-        "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:18"
-      ],
-      "description": "TypeScript 7 hängt die Beschreibungstexte der beiden `@typedef` (`OffscreenDisplayMessage`, `OffscreenWorkerDisplayEvents`) nicht an die erzeugten Typen; im Editor-Hover fehlt die Erklärung. Rein kosmetisch. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "Die Beschreibung als Kommentar direkt an die Typdefinition bzw. die einzelnen Eigenschaften setzen und die erzeugte `.d.ts` prüfen.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "CONS-002",
-      "category": "consistency",
-      "domain": "harness",
-      "component": "astro-rainbow-line",
-      "severity": "info",
-      "title": "Changelog 1.4.0 nennt einen Fix für einen Fehler, den kein Release hatte",
-      "location": "packages/astro-rainbow-line/CHANGELOG.md:23",
-      "description": "»Fixed: the component type-checks in projects with strict TypeScript settings« beschreibt einen Fehler, der erst im selben unveröffentlichten Abschnitt entstanden ist. Nach Keep a Changelog entbehrlich. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "Den Eintrag streichen, solange 1.4.0 nicht veröffentlicht ist.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "BUILD-004",
-      "category": "build",
-      "domain": "harness",
-      "component": "build-release",
-      "severity": "info",
-      "title": "Vergleichslinks im rainbow-line-Changelog zeigen auf nicht gesetzte Tags",
-      "location": "packages/rainbow-line/CHANGELOG.md:81",
-      "locations": [
-        "packages/rainbow-line/CHANGELOG.md:82"
-      ],
-      "description": "Die Links für 0.4.0 und 0.5.0 vergleichen gegen die Tags `rainbow-line-v0.4.0` und `rainbow-line-v0.5.0`, die es im Repo nicht gibt; bis zum Tagging führen sie ins Leere. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "`rainbow-line-v0.4.0` auf `896de45` und `rainbow-line-v0.5.0` auf den Release-Commit setzen und pushen.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "BUILD-005",
-      "category": "build",
-      "domain": "harness",
-      "component": "build-release",
-      "severity": "info",
-      "title": "makePackageJson loggt Pfade, die das Skript nicht mehr braucht",
-      "location": "scripts/makePackageJson.mjs:5",
-      "description": "`targetSubDir`, `workspaceRoot` und `packageRoot` samt ihrer `console.log`-Zeilen stehen weiter im Skript, obwohl nach dem Entfernen des Präfix-Strips nur noch `projectRoot` und das Zielverzeichnis gebraucht werden. Kleinbefund des Reviewers ohne Nachrunde, laut Detailplan bewusst stehen gelassen.",
-      "recommendation": "Ungenutzte Variablen und ihre Log-Zeilen entfernen.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    },
-    {
-      "id": "CORR-007",
-      "category": "correctness",
-      "domain": "code",
-      "package": "offscreen-display",
-      "component": "offscreen-display-worker",
-      "severity": "info",
-      "kind": "improvement",
-      "title": "Ein Listener, der in jedem Frame wirft, erzeugt rund 60 error-Events pro Sekunde",
-      "location": "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:152",
-      "description": "Der Frame-Loop fordert den nächsten Frame im `finally` an und läuft deshalb nach einer Exception im `onFrame`-Listener weiter. Wirft der Listener dauerhaft, meldet der Main-Thread jeden Frame ein `error`-Event. So gewollt; die Wertebereichsprüfungen von rainbow-line nehmen die bekannten Auslöser weg. Kleinbefund des Reviewers ohne Nachrunde.",
-      "recommendation": "Wiederholte identische Fehler drosseln oder nach N aufeinanderfolgenden Fehlern den Loop anhalten und einmal melden.",
-      "effort": "S",
-      "status": "new",
-      "origin": {
-        "kind": "induced",
-        "run": "2026-09-22"
-      }
-    }
-  ],
-  "openQuestions": [
-    "Ist das Überleben des Workers über `disconnect` → `connect` hinweg (DOM-Verschieben, Framework-Re-Mount) ein gewolltes Feature? Davon hängt ab, ob `dispose()` in `disconnectedCallback()` sofort oder mit Gnadenfrist greift (RES-001).",
-    "Ist die Kehrwert-Semantik von `cycle-colors-repeat \u003c 1` (0.01 → 100 Wiederholungen) beabsichtigt? Sie ist nirgends dokumentiert, `index.html` nutzt sie aber (READ-001).",
-    "Sollen die Quell-Subpfade `./RainbowLineElement.js` und `./RainbowLineWorkerDisplay.js` öffentliche API bleiben? Nur sie rechtfertigen die Laufzeit-Dependencies von `rainbow-line` (DEP-001).",
-    "Sind Safari und Firefox Zielplattformen mit Testanspruch? Die Build-Targets nennen sie, die Tests laufen nur in Chromium (TEST-001)."
-  ],
+  "findings": [],
+  "openQuestions": [],
   "methodology": {
     "text": "Das Projekt ist klein genug für eine Vollprüfung: alle 26 Quelldateien (1.092 Zeilen: die drei Packages, Workspace-Skripte, Vitest-Konfigurationen) wurden vollständig gelesen, dazu sämtliche Tests und Fixtures, die E2E-Suite mit Server und Astro-Site, READMEs, Changelogs, Demo-Seiten, `package.json`/`project.json` aller Projekte, `nx.json`, `tsconfig.json`, `biome.json` und der GitHub-Workflow. Nicht als Quelltext gezählt: Build-Output (`dist/`, `.npm-pkg/`, die generierten `bundle.js`/`rainbow-line*.js`), das vendored `rainbow-line-v0.4.0.js`, Tests und E2E.\n\nAusgeführt: `pnpm lint` (Biome, 63 Dateien, sauber), `pnpm typecheck` (sauber), `pnpm outdated -r` (nur `@types/node`), `pnpm build`, `pnpm nx run-many -t test e2e --skip-nx-cache` (offscreen-display 10, rainbow-line 18, astro-rainbow-line 5 Tests grün; E2E 16 grün), `npm view` für die drei Packages, `gzip`-Messung der Bundles. Zusätzlich ein Playwright-Skript gegen `e2e/pages/bundle.html`: 30× Element anlegen und entfernen, GC per CDP erzwingen, `page.workers().length` zählen — Ergebnis 32 Worker (RES-001).\n\nDie Semantik der Bibliotheken (signalize: synchrone Effekte, statische Deps ohne Autorun, kein implizites Cleanup; eventize: `emit()` propagiert Listener-Exceptions, funktionaler Stil ohne `.on`-Methode) wurde gegen die Skill-Dokumentation beider Bibliotheken geprüft, nicht vermutet.",
     "notes": [
       "Erster Audit-Lauf, kein Vorgänger-Report.",
       "Schwerpunkt laut Auftrag: Memory Leaks und Laufzeit-Performance; die beiden Kategorien wurden mit Messung (Worker-Zählung, Bundle-Gewicht) statt nur Lektüre geprüft.",
       "`PERF-001`, `PERF-002`, `PERF-003` und `CONS-001` sind als Optimierungspotenzial ohne Defekt eingetragen und zählen nicht im Score.",
-      "Nachgeführt durch den Remediation-Lauf vom 2026-09-22 (6 Pakete, 6 Commits cdafb38..999823e): 19 Findings mit Reviewer-Urteil und Commit-Hash geschlossen, PERF-003 als bewusste Entscheidung acknowledged, 9 Kleinbefunde der Reviewer neu aufgenommen. Kein Finding blieb mangels Beleg offen. Der Code wurde seit dem Audit nicht neu geprüft; die Zahlen sind eine Neuberechnung auf dem veränderten Backlog."
+      "Nachgeführt durch den Remediation-Lauf vom 2026-09-22 (6 Pakete, 6 Commits cdafb38..999823e): 19 Findings mit Reviewer-Urteil und Commit-Hash geschlossen, PERF-003 als bewusste Entscheidung acknowledged, 9 Kleinbefunde der Reviewer neu aufgenommen. Kein Finding blieb mangels Beleg offen. Der Code wurde seit dem Audit nicht neu geprüft; die Zahlen sind eine Neuberechnung auf dem veränderten Backlog.",
+      "Zweiter Remediation-Lauf vom 2026-09-22 (3 Pakete, 3 Commits 6bfd485..3482685): die 9 offenen Kleinbefunde mit Reviewer-Urteil und Commit-Hash geschlossen, einer davon (ungenutzte Variablen in makePackageJson) als Fehlbefund; dazu drei beim Messen der Baseline aufgefallene Befunde behoben (Publish scheiterte in CI mit E404, jetzt npm Trusted Publishing; sporadische Firefox-Timeouts in e2e unter Parallellast). Die vier offenen Fragen waren im Code entschieden und wurden entfernt. Kein Finding blieb mangels Beleg offen. Der Code wurde seit dem Audit nicht neu geprüft; die Zahlen sind eine Neuberechnung auf dem veränderten Backlog."
     ]
   },
   "scoreHistory": [
@@ -538,12 +350,12 @@
     },
     {
       "date": "2026-09-22",
-      "score": 96,
+      "score": 100,
       "source": "remediation",
       "scoreModel": 2,
       "domains": {
-        "code": 95,
-        "harness": 98
+        "code": 100,
+        "harness": 100
       },
       "coverage": 1
     }
@@ -557,6 +369,16 @@
       "inducedFixed": 7,
       "inducedOpen": 9,
       "discovered": 15,
+      "attribution": "reviewed"
+    },
+    {
+      "date": "2026-09-22",
+      "source": "remediation",
+      "ref": "2026-09-22",
+      "fixed": 9,
+      "inducedFixed": 8,
+      "inducedOpen": 0,
+      "discovered": 3,
       "attribution": "reviewed"
     }
   ],
