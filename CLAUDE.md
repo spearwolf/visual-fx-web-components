@@ -25,7 +25,7 @@ There are no real tests yet: `offscreen-display`'s `test` script is an `echo` pl
 
 Linting is ESLint 10 (root flat config `eslint.config.mjs`; nx infers the `lint` targets via `@nx/eslint/plugin`) with Prettier enforced as an ESLint error: 130 cols, single quotes, trailing commas, no bracket spacing. `eslint-plugin-require-extensions` requires explicit `.js` extensions on relative imports (loaded through `@eslint/compat`, since it still uses a context API that ESLint 10 removed).
 
-pnpm 11 reads its settings from `pnpm-workspace.yaml` (not `.npmrc`); dependencies that need install scripts must be listed under `allowBuilds` there. `.npmrc` only holds the npm auth token for `npm publish`.
+pnpm 11 reads its settings from `pnpm-workspace.yaml` (not `.npmrc`); dependencies that need install scripts must be listed under `allowBuilds` there. There is no project `.npmrc`: in CI, `actions/setup-node` (with `registry-url`) writes the npm auth from the `NPM_AUTH_TOKEN` secret, passed as `NODE_AUTH_TOKEN`.
 
 ## Architecture
 

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const DRY_RUN = false || process.argv.includes('--dry-run');
+const DRY_RUN = process.argv.includes('--dry-run');
 
 const workspaceRoot = path.resolve(fileURLToPath(import.meta.url), '../../');
 const projectRoot = path.resolve(process.cwd());
@@ -15,7 +15,6 @@ console.log('projectRoot:', projectRoot);
 console.log('packageRoot:', packageRoot);
 console.log('dryRun:', DRY_RUN ? 'yes' : 'no');
 console.log('env: ---');
-console.log(' - NPM_TOKEN:', process.env.NPM_TOKEN ? `${process.env.NPM_TOKEN.substring(0, 6)}...` : 'unset');
 console.log(' - NODE_AUTH_TOKEN:', process.env.NODE_AUTH_TOKEN ? `${process.env.NODE_AUTH_TOKEN.substring(0, 6)}...` : 'unset');
 console.log('packageJson: ---');
 console.dir(pkgJson);
@@ -58,7 +57,6 @@ function publishPackage(dryRun = DRY_RUN) {
 }
 
 function preparePackageRoot() {
-  copyFile(path.resolve(workspaceRoot, '.npmrc'), path.resolve(packageRoot, '.npmrc'));
   copyFile(path.resolve(workspaceRoot, 'LICENSE'), path.resolve(packageRoot, 'LICENSE'));
   copyFile(path.resolve(projectRoot, 'CHANGELOG.md'), path.resolve(packageRoot, 'CHANGELOG.md'));
 

@@ -10,9 +10,7 @@
       "options": {
         "script": "dev"
       },
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     }
   },
   "tags": []

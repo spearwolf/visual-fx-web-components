@@ -18,13 +18,9 @@ jobs:
       - uses: pnpm/action-setup@v6
         with:
           run_install: true
-        env:
-          NPM_TOKEN: xxx
 
       - name: Run all checks
         run: pnpm run ci
-        env:
-          NPM_TOKEN: xxx
 
   publish:
     name: publish packages
@@ -36,15 +32,13 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
 
       - uses: pnpm/action-setup@v6
         with:
           run_install: true
-        env:
-          NPM_TOKEN: xxx
 
       - run: pnpm run publishNpmPkg
         name: Publish npm packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
