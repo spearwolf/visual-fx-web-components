@@ -16,17 +16,14 @@
     "run-s": "pnpm exec run-s -s",
     "build": "pnpm nx run-many -t build",
     "test": "pnpm nx run-many -t test",
-    "test:ci": "pnpm nx run-many -t test --exclude=shadow-ents-e2e",
     "lint": "pnpm nx run-many -t lint",
     "test:affected": "pnpm nx affected -t test",
     "clean": "pnpm nx run-many -t clean && pnpm rimraf dist",
     "clear-cache": "pnpm nx reset && pnpm nx run-many -t clean && pnpm rimraf dist",
     "update": "pnpm dlx npm-check --update",
     "cbt": "pnpm run-s clean build test",
-    "site": "pnpm nx dev site",
-    "start": "pnpm nx dev site",
     "make:todo": "pnpm node scripts/makeTODO.mjs TODO.md",
-    "ci": "pnpm run-s build lint test:ci",
+    "ci": "pnpm run-s build lint test",
     "publishNpmPkg": "pnpm nx run-many -t publishNpmPkg"
   },
   "devDependencies": {
