@@ -23,13 +23,23 @@ export class OffscreenDisplay extends HTMLElement {
     </div>
   `;
 
-  #lastCanvasWidth = 0;
-  #lastCanvasHeight = 0;
+  #resizeObserver = new ResizeObserver((entries) => this.#onCanvasResize(entries));
 
-  #rafID = 0;
+  /** @type {'device-pixel-content-box' | 'content-box' | undefined} */
+  #observedBox = undefined;
+
+  /** @type {MediaQueryList | undefined} */
+  #pixelRatioQuery = undefined;
+
+  #disposeRafID = 0;
+
+  #canvasTransferred = false;
 
   /**
    * @param {string=} [initialHTML] The initial HTML of the shadow root. Should contain a canvas element.
+   *   The canvas must get its displayed size from CSS (the default styles stretch it over the element):
+   *   its pixel size follows the displayed size in physical pixels, so a canvas that sizes itself by its
+   *   intrinsic size would grow with every resize.
    */
   constructor(initialHTML = OffscreenDisplay.InitialHTML) {
     super();
@@ -77,42 +87,69 @@ export class OffscreenDisplay extends HTMLElement {
     return {alpha: true};
   }
 
-  #readCanvasSize() {
-    const clientRect = this.canvas.getBoundingClientRect();
-    this.#lastCanvasWidth = clientRect.width;
-    this.#lastCanvasHeight = clientRect.height;
-    return {width: clientRect.width, height: clientRect.height};
-  }
-
-  #ifCanvasSizeChanged(doSomething) {
-    const clientRect = this.canvas.getBoundingClientRect();
-    if (this.#lastCanvasWidth !== clientRect.width || this.#lastCanvasHeight !== clientRect.height) {
-      this.#lastCanvasWidth = clientRect.width;
-      this.#lastCanvasHeight = clientRect.height;
-      doSomething(clientRect.width, clientRect.height);
+  #observeCanvas() {
+    try {
+      this.#resizeObserver.observe(this.canvas, {box: 'device-pixel-content-box'});
+      this.#observedBox = 'device-pixel-content-box';
+    } catch {
+      // WebKit does not support this box and throws a TypeError
+      this.#resizeObserver.observe(this.canvas, {box: 'content-box'});
+      this.#observedBox = 'content-box';
     }
+    this.#watchPixelRatio();
   }
 
-  #onFrame = () => {
-    this.#ifCanvasSizeChanged((width, height) => {
-      this.worker.postMessage({
-        resize: {width, height},
-      });
-    });
-    this.#requestAnimationFrame();
+  #unobserveCanvas() {
+    this.#resizeObserver.disconnect();
+    this.#pixelRatioQuery?.removeEventListener('change', this.#onPixelRatioChange);
+    this.#pixelRatioQuery = undefined;
+  }
+
+  /**
+   * @param {ResizeObserverEntry[]} entries
+   */
+  #onCanvasResize(entries) {
+    // only the canvas is observed, so the last entry is its latest size
+    const entry = entries.at(-1);
+    const pixelRatio = window.devicePixelRatio;
+    let width;
+    let height;
+    // chromium fills devicePixelContentBoxSize for a content-box observation too, so the branch depends on
+    // what was requested and not on what the entry carries
+    if (this.#observedBox === 'device-pixel-content-box') {
+      width = entry.devicePixelContentBoxSize[0].inlineSize;
+      height = entry.devicePixelContentBoxSize[0].blockSize;
+    } else {
+      width = Math.round(entry.contentRect.width * pixelRatio);
+      height = Math.round(entry.contentRect.height * pixelRatio);
+    }
+    this.worker?.postMessage({resize: {width, height, pixelRatio}});
+  }
+
+  #watchPixelRatio() {
+    this.#pixelRatioQuery?.removeEventListener('change', this.#onPixelRatioChange);
+    this.#pixelRatioQuery = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+    this.#pixelRatioQuery.addEventListener('change', this.#onPixelRatioChange);
+  }
+
+  // a new observation reports the size once more — with the content-box fallback this is the only way to
+  // notice a change of the devicePixelRatio (zoom, another screen) that does not change the css size
+  #onPixelRatioChange = () => {
+    this.#resizeObserver.unobserve(this.canvas);
+    this.#observeCanvas();
   };
 
-  #requestAnimationFrame() {
-    this.#rafID = requestAnimationFrame(this.#onFrame);
-  }
-
-  #cancelAnimationFrame() {
-    cancelAnimationFrame(this.#rafID);
-  }
-
   #setupWorker() {
-    this.canvas = this.queryCanvasElement();
-    const offscreen = this.canvas.transferControlToOffscreen();
+    let canvas = this.queryCanvasElement();
+    if (this.#canvasTransferred) {
+      // the control of a canvas can only be transferred once, a new worker needs a new canvas element
+      const freshCanvas = /** @type {HTMLCanvasElement} */ (canvas.cloneNode(false));
+      canvas.replaceWith(freshCanvas);
+      canvas = freshCanvas;
+    }
+    this.canvas = canvas;
+    const offscreen = canvas.transferControlToOffscreen();
+    this.#canvasTransferred = true;
     this.worker = this.createWorker();
     this.worker.postMessage(
       {
@@ -142,19 +179,36 @@ export class OffscreenDisplay extends HTMLElement {
   }
 
   connectedCallback() {
+    cancelAnimationFrame(this.#disposeRafID);
     if (!this.worker) {
       this.#setupWorker();
     }
-    this.worker.postMessage({
-      isConnected: true,
-      resize: this.#readCanvasSize(),
-    });
-    this.#requestAnimationFrame();
+    this.worker.postMessage({isConnected: true});
+    this.#observeCanvas();
   }
 
   disconnectedCallback() {
+    this.#unobserveCanvas();
+    if (!this.worker) return;
     this.worker.postMessage({isConnected: false});
-    this.#cancelAnimationFrame();
+    // moving the element (remove and insert within the same task) keeps the worker; it is only terminated
+    // when the element is still disconnected one animation frame later
+    this.#disposeRafID = requestAnimationFrame(() => {
+      if (!this.isConnected) this.dispose();
+    });
+  }
+
+  /**
+   * Terminates the worker and stops observing the size of the canvas. Idempotent.
+   *
+   * The element calls it by itself one animation frame after it was removed from the document.
+   * Connecting the element again afterwards starts a fresh worker with a fresh canvas.
+   */
+  dispose() {
+    cancelAnimationFrame(this.#disposeRafID);
+    this.#unobserveCanvas();
+    this.worker?.terminate();
+    this.worker = undefined;
   }
 
   // TODO adpoptedCallback ?

@@ -4,8 +4,6 @@ import {colorRuns, decodePngRow, hasDrawnSomething, hueBuckets, hueOf} from '../
 
 const WIDTH = 360;
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 function mountRainbowLine(attributes = {}) {
   const line = document.createElement('rainbow-line');
   for (const [name, value] of Object.entries(attributes)) {
@@ -42,7 +40,6 @@ export function describeRainbowLine(variant) {
   describe(`<rainbow-line> (${variant})`, () => {
     afterEach(() => {
       for (const line of document.querySelectorAll('rainbow-line')) {
-        line.worker?.terminate();
         line.remove();
       }
     });
@@ -72,10 +69,8 @@ export function describeRainbowLine(variant) {
     test('animates the colors', async () => {
       const line = mountRainbowLine();
       const before = await readDrawnRow(line);
-      await sleep(300);
-      const after = await readRow(line);
 
-      expect(after).not.toEqual(before);
+      await expect.poll(() => readRow(line)).not.toEqual(before);
     });
 
     test('color-slice-width sets the width of the color slices', async () => {
@@ -120,16 +115,32 @@ export function describeRainbowLine(variant) {
         const line = mountRainbowLine({'slice-cycle-time': '4', 'color-slice-width': '1', ...attributes});
         await readDrawnRow(line);
         const first = hueOf((await readRow(line))[0]);
-        await sleep(250);
-        const second = hueOf((await readRow(line))[0]);
+        // the shift of the hue at x=0, normalized to (-180, 180]; with a cycle time of 4s the hue moves by 90° per second,
+        // so a shift of more than 5° is far away from the wrap-around at 180°
+        let shift = 0;
+        await expect
+          .poll(async () => {
+            const second = hueOf((await readRow(line))[0]);
+            shift = ((second - first + 540) % 360) - 180;
+            return Math.abs(shift);
+          })
+          .toBeGreaterThan(5);
         line.remove();
-        // the shift of the hue at x=0, normalized to (-180, 180]
-        return ((second - first + 540) % 360) - 180;
+        return shift;
       };
 
       // right (the default) cycles through the hues backwards, left forwards
       expect(await hueAtStart({'cycle-direction': 'right'})).toBeLessThan(0);
       expect(await hueAtStart({'cycle-direction': 'left'})).toBeGreaterThan(0);
+    });
+
+    test('terminates its worker once it has been removed', async () => {
+      const line = mountRainbowLine();
+      await readDrawnRow(line);
+
+      line.remove();
+
+      await expect.poll(() => line.worker).toBeUndefined();
     });
   });
 }

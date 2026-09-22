@@ -27,8 +27,7 @@ for (const variant of VARIANTS) {
       expect(hueBuckets(row).size).toBeGreaterThanOrEqual(10);
       expect(colorRuns(row)).toBe(360 / 10);
 
-      await page.waitForTimeout(300);
-      expect(await readRow(line)).not.toEqual(row);
+      await expect.poll(() => readRow(line)).not.toEqual(row);
 
       expect(problems).toEqual([]);
     });
@@ -55,6 +54,26 @@ for (const variant of VARIANTS) {
       // every <rainbow-line> starts a worker of its own, so the worker file may be requested more than once
       const scripts = [...new Set(requests.filter((path) => path.endsWith('.js')))];
       expect(scripts).toEqual(variant.workerFile ? [variant.script, variant.workerFile] : [variant.script]);
+    });
+
+    test('terminates the workers of removed elements', async ({page}) => {
+      await page.goto(variant.page);
+      await expect.poll(() => page.workers().length).toBe(2);
+
+      await page.evaluate(() => {
+        for (let i = 0; i < 5; i++) {
+          document.body.append(document.createElement('rainbow-line'));
+        }
+      });
+      // the workers have to be running before the elements are removed, otherwise there would be nothing to terminate
+      await expect.poll(() => page.workers().length).toBe(7);
+
+      await page.evaluate(() => {
+        for (const line of document.querySelectorAll('rainbow-line:not([id])')) {
+          line.remove();
+        }
+      });
+      await expect.poll(() => page.workers().length).toBe(2);
     });
   });
 }

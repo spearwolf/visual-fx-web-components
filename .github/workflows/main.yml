@@ -24,7 +24,7 @@ jobs:
           run_install: true
 
       - name: Install playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm playwright:install --with-deps
 
       - name: Run all checks
         run: pnpm verify

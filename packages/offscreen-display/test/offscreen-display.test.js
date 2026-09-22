@@ -5,10 +5,22 @@ import {OffscreenDisplay} from '../dist/offscreen-display.js';
 
 class TestDisplay extends OffscreenDisplay {
   events = [];
+  errors = [];
+  terminatedWorkers = [];
 
   createWorker() {
     const worker = new Worker(new URL('./fixtures/test-display.worker.js', import.meta.url), {type: 'module'});
     worker.addEventListener('message', ({data}) => this.events.push(data));
+    worker.addEventListener('error', (event) => {
+      // otherwise the browser reports it as an unhandled error of the page and vitest aborts the run
+      event.preventDefault();
+      this.errors.push(event.message);
+    });
+    const terminate = worker.terminate.bind(worker);
+    worker.terminate = () => {
+      this.terminatedWorkers.push(worker);
+      terminate();
+    };
     return worker;
   }
 
@@ -22,6 +34,10 @@ class TestDisplay extends OffscreenDisplay {
 
   lastFrame() {
     return this.eventsOf('frame').at(-1);
+  }
+
+  frameCount() {
+    return this.eventsOf('frame').length;
   }
 }
 
@@ -51,7 +67,6 @@ async function readMiddlePixel(element) {
 
 afterEach(() => {
   for (const display of document.querySelectorAll('test-display')) {
-    display.worker?.terminate();
     display.remove();
   }
 });
@@ -106,12 +121,12 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
   test('resizes the offscreen canvas to the size of the element', async () => {
     const display = mountDisplay();
 
-    await expect.poll(() => display.eventsOf('resize').at(-1)).toEqual({event: 'resize', width: 320, height: 240});
+    await expect.poll(() => display.eventsOf('resize').at(-1)).toEqual({event: 'resize', width: 320, height: 240, pixelRatio: 1});
 
     display.style.width = '200px';
     display.style.height = '100px';
 
-    await expect.poll(() => display.eventsOf('resize').at(-1)).toEqual({event: 'resize', width: 200, height: 100});
+    await expect.poll(() => display.eventsOf('resize').at(-1)).toEqual({event: 'resize', width: 200, height: 100, pixelRatio: 1});
     await expect.poll(() => display.lastFrame()).toMatchObject({width: 200, height: 100});
   });
 
@@ -137,19 +152,116 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
     await expect.poll(() => readMiddlePixel(display)).toEqual([0, 0, 255]);
   });
 
-  test('stops rendering frames while disconnected and resumes on reconnect', async () => {
+  test('keeps its worker when it is moved to another place in the document', async () => {
     const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+    const worker = display.worker;
 
-    await expect.poll(() => display.eventsOf('frame').length).toBeGreaterThan(2);
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    try {
+      container.append(display);
+      const framesAfterMove = display.frameCount();
+
+      await expect.poll(() => display.frameCount()).toBeGreaterThan(framesAfterMove + 2);
+      expect(display.worker).toBe(worker);
+      expect(display.terminatedWorkers).toEqual([]);
+    } finally {
+      container.remove();
+    }
+  });
+
+  test('terminates its worker one animation frame after it was removed', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.eventsOf('init').length).toBe(1);
+    const worker = display.worker;
 
     display.remove();
-    await sleep(100);
-    const framesWhileDisconnected = display.eventsOf('frame').length;
-    await sleep(300);
-    expect(display.eventsOf('frame').length).toBe(framesWhileDisconnected);
+
+    await expect.poll(() => display.worker).toBeUndefined();
+    expect(display.terminatedWorkers).toEqual([worker]);
+  });
+
+  test('starts a fresh worker with a fresh canvas when it is connected again', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => readMiddlePixel(display)).toEqual([255, 0, 0]);
+    const oldWorker = display.worker;
+    const oldCanvas = display.canvas;
+
+    display.remove();
+    await expect.poll(() => display.worker).toBeUndefined();
 
     document.body.appendChild(display);
 
-    await expect.poll(() => display.eventsOf('frame').length).toBeGreaterThan(framesWhileDisconnected + 2);
+    expect(display.worker).toBeDefined();
+    expect(display.worker).not.toBe(oldWorker);
+    expect(display.canvas).not.toBe(oldCanvas);
+    expect(display.shadowRoot.querySelectorAll('canvas')).toHaveLength(1);
+    expect(display.queryCanvasElement()).toBe(display.canvas);
+    await expect.poll(() => readMiddlePixel(display)).toEqual([255, 0, 0]);
+  });
+
+  test('dispose() terminates the worker of a connected element', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+    const worker = display.worker;
+
+    display.dispose();
+
+    expect(display.worker).toBeUndefined();
+    expect(display.terminatedWorkers).toContain(worker);
+
+    const framesAfterDispose = display.frameCount();
+    // the absence of frames can only be observed by waiting a fixed time
+    await sleep(300);
+    expect(display.frameCount()).toBe(framesAfterDispose);
+
+    expect(() => display.remove()).not.toThrow();
+  });
+
+  test('keeps rendering frames after an onFrame listener threw', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+
+    display.worker.postMessage({throwInNextFrame: true});
+
+    await expect.poll(() => display.errors).toContainEqual(expect.stringMatching(/boom from onFrame/));
+    const framesAfterError = display.frameCount();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(framesAfterError + 2);
+  });
+
+  test('destroy() ends the frame loop and releases the signals of the display', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+
+    display.worker.postMessage({destroy: true});
+
+    await expect.poll(() => display.eventsOf('destroyed')).toHaveLength(1);
+    const [{signalsBefore, signalsAfter}] = display.eventsOf('destroyed');
+    // the five signals of the display instance
+    expect(signalsAfter).toBe(signalsBefore - 5);
+
+    const framesAfterDestroy = display.frameCount();
+    await sleep(300);
+    expect(display.frameCount()).toBe(framesAfterDestroy);
+  });
+
+  test('measures the canvas in css pixels times devicePixelRatio where the device pixel box is not supported', async () => {
+    const {observe} = ResizeObserver.prototype;
+    ResizeObserver.prototype.observe = function (target, options) {
+      if (options?.box === 'device-pixel-content-box') {
+        throw new TypeError('device-pixel-content-box is not supported');
+      }
+      return observe.call(this, target, options);
+    };
+    try {
+      const display = mountDisplay();
+
+      await expect
+        .poll(() => display.eventsOf('resize').at(-1))
+        .toEqual({event: 'resize', width: 320, height: 240, pixelRatio: 1});
+    } finally {
+      ResizeObserver.prototype.observe = observe;
+    }
   });
 });

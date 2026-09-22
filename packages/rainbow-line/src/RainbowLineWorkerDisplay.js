@@ -22,8 +22,10 @@ on(display, {
     ctx = canvas.getContext('2d', contextAttributes);
   },
 
-  onFrame({now, canvasWidth: w, canvasHeight: h}) {
-    const _colorSliceWidth = colorSliceWidth < 1 ? Math.round(colorSliceWidth * w) : colorSliceWidth;
+  onFrame({now, canvasWidth: w, canvasHeight: h, pixelRatio}) {
+    // a color-slice-width from 1 up is in css pixels, the canvas has physical pixels; at least 1, so the loop always advances
+    const _colorSliceWidth =
+      colorSliceWidth < 1 ? Math.round(colorSliceWidth * w) : Math.max(1, Math.round(colorSliceWidth * pixelRatio));
     let x = 0;
     while (x < w) {
       const xw = x / w;

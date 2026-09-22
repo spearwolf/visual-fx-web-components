@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- sharp on screens with a `devicePixelRatio` above 1: the canvas has physical pixels, `color-slice-width` stays in css pixels
+- a removed element terminates its worker
+
 - the `./rainbow-line.worker.js` subpath export pointed to a non-existent `rainbow-line-worker.js`
 
 ### Changed

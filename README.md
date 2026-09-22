@@ -16,11 +16,13 @@ Just use ...
 $ pnpm install
 ```
 
-... to install or refresh all the dependencies. The tests run in a headless chromium, which has to be installed once with ..
+... to install or refresh all the dependencies. The tests run in headless chromium, firefox and webkit, which have to be installed once with ..
 
 ```sh
 $ pnpm playwright:install
 ```
+
+Playwright's webkit needs system libraries that some Linux distributions do not ship (ICU 74 and flite on Arch-based systems); there `E2E_SKIP_WEBKIT=1 pnpm e2e` leaves it out, the github workflow always runs all three browsers.
 
 After that you can simply build and test all packages with ..
 
