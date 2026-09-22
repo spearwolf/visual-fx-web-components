@@ -2,6 +2,9 @@ import {defineConfig, devices} from '@playwright/test';
 
 const PORT = Number(process.env.E2E_PORT ?? 4180);
 
+// npm-packages.spec.js, server.spec.js and tag-releases.spec.js need no browser, running them once is enough
+const nodeOnlySpecs = ['npm-packages.spec.js', 'server.spec.js', 'tag-releases.spec.js'];
+
 // Playwright's webkit needs system libraries that not every Linux distribution provides (ICU 74 and flite,
 // missing on Arch-based systems), so locally it only runs on request with E2E_WEBKIT=1; CI always runs it
 const skipWebkit = !process.env.E2E_WEBKIT && !process.env.CI;
@@ -14,8 +17,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', {open: 'never'}]] : 'list',
-  // Firefox starts workers and takes element screenshots slowly while the machine is busy (the vitest browser tests
-  // and both playwright projects running at once); the assertions wait for a state that arrives, so they get more time
+  // every browser project slows down while the machine is busy: locally when nx runs the vitest browser tests
+  // alongside the playwright projects, in CI on a small runner with webkit as a third project. Firefox starts
+  // workers and takes element screenshots slowest under that load, but the load hits every project, so the
+  // timeout applies to all of them; the assertions wait for a state that arrives, only late
   expect: {timeout: 15_000},
   use: {
     baseURL: `http://localhost:${PORT}`,
@@ -23,11 +28,8 @@ export default defineConfig({
   },
   projects: [
     {name: 'chromium', use: {...devices['Desktop Chrome']}},
-    // npm-packages.spec.js and server.spec.js need no browser, running them once is enough
-    {name: 'firefox', use: {...devices['Desktop Firefox']}, testIgnore: ['npm-packages.spec.js', 'server.spec.js']},
-    ...(skipWebkit
-      ? []
-      : [{name: 'webkit', use: {...devices['Desktop Safari']}, testIgnore: ['npm-packages.spec.js', 'server.spec.js']}]),
+    {name: 'firefox', use: {...devices['Desktop Firefox']}, testIgnore: nodeOnlySpecs},
+    ...(skipWebkit ? [] : [{name: 'webkit', use: {...devices['Desktop Safari']}, testIgnore: nodeOnlySpecs}]),
   ],
   webServer: {
     command: 'node server.mjs',

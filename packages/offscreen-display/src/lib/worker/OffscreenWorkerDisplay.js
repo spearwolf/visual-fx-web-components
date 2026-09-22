@@ -21,8 +21,8 @@ import {batch, createEffect, createSignal, SignalGroup} from '@spearwolf/signali
  * The events of an `OffscreenWorkerDisplay` and the arguments their listeners receive, as an event map for
  * `@spearwolf/eventize` — for example `EventListenerMethods<OffscreenWorkerDisplayEvents>`.
  * @typedef {Object} OffscreenWorkerDisplayEvents
- * @property {[display: OffscreenWorkerDisplay, contextAttributes: Record<string, unknown> | undefined]} onCanvas the
- *   canvas has arrived, with the attributes for `getContext()`; retained
+ * @property {[display: OffscreenWorkerDisplay, contextAttributes: Record<string, unknown> | undefined]} onCanvas
+ * the canvas has arrived, with the attributes for `getContext()`; retained
  * @property {[display: OffscreenWorkerDisplay]} onInit the canvas is there and the element is connected; retained
  * @property {[display: OffscreenWorkerDisplay]} onResize the size or the pixel ratio has changed; retained
  * @property {[display: OffscreenWorkerDisplay]} onFrame once per animation frame, only while the element is connected,

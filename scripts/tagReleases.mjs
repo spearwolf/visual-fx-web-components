@@ -8,10 +8,17 @@ import path from 'node:path';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
+// registry.npmjs.org serves a package document with `cache-control: public, max-age=300`, and the publish job reads
+// it (`npm show <name> versions`) right before it publishes, so a CDN edge may answer without the new version for up
+// to five minutes; the delays add up to six
+const DEFAULT_RETRY_DELAYS = [10, 20, 30, 60, 60, 60, 60, 60];
+const RETRY_DELAYS = readRetryDelays();
+
 const projectRoot = path.resolve(process.cwd());
 
 console.log('projectRoot:', projectRoot);
 console.log('dryRun:', DRY_RUN ? 'yes' : 'no');
+console.log('retryDelays:', DRY_RUN ? 'none (dry run)' : `${RETRY_DELAYS.join(', ')} s`);
 
 /** @type {string[]} */
 const newTags = [];
@@ -91,13 +98,14 @@ if (failed) {
 
 /**
  * Resolves the `gitHead` npm recorded for `spec`. Outside `--dry-run`, `needs: publish` guarantees the version is
- * already published, so an `E404` here almost always means the registry has not listed it yet; retries with backoff
- * before giving up. `--dry-run` makes a single attempt, since it also runs locally against arbitrary versions.
+ * already published, so an `E404` here almost always means the registry has not listed it yet; retries with the
+ * delays from `RETRY_DELAYS` before giving up. `--dry-run` makes a single attempt, since it also runs locally
+ * against arbitrary versions.
  * @param {string} spec
  * @returns {string | null | undefined} the commit id, `undefined` if `spec` is not on npm, `null` on failure
  */
 function fetchGitHead(spec) {
-  const retryDelaysMs = DRY_RUN ? [] : [10_000, 20_000, 30_000, 40_000];
+  const retryDelaysMs = DRY_RUN ? [] : RETRY_DELAYS.map((seconds) => seconds * 1000);
   for (let attempt = 0; attempt <= retryDelaysMs.length; attempt++) {
     try {
       return execFileSync('npm', ['view', spec, 'gitHead'], {encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']}).trim();
@@ -135,6 +143,24 @@ function readPublishedPackages() {
     .filter((pkgJsonPath) => fs.existsSync(pkgJsonPath))
     .map((pkgJsonPath) => JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')))
     .filter((pkgJson) => pkgJson.scripts?.publishNpmPkg);
+}
+
+/**
+ * The pauses in seconds between attempts to find a freshly published version on npm; `TAG_RELEASES_RETRY_DELAYS`
+ * replaces them (the tests set `0,0`).
+ * @returns {number[]}
+ */
+function readRetryDelays() {
+  const value = process.env.TAG_RELEASES_RETRY_DELAYS;
+  if (value === undefined || value.trim() === '') {
+    return DEFAULT_RETRY_DELAYS;
+  }
+  const entries = value.split(',').map((entry) => entry.trim());
+  if (!entries.every((entry) => /^\d+(\.\d+)?$/.test(entry))) {
+    console.error(`TAG_RELEASES_RETRY_DELAYS must be a comma-separated list of seconds, such as 10,20,30, got '${value}'`);
+    process.exit(1);
+  }
+  return entries.map(Number);
 }
 
 /**

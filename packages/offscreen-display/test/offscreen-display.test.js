@@ -275,6 +275,24 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
     await expect.poll(() => display.errors).toHaveLength(3);
   });
 
+  test('reports a thrown value that is not an Error once while the same value repeats in every frame', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+    const failingFrames = () => display.eventsOf('failingFrame').length;
+
+    display.worker.postMessage({throwValueInEveryFrame: 'plain boom'});
+    await expect.poll(() => display.errors).toHaveLength(1);
+    const failingFramesBefore = failingFrames();
+    await expect.poll(failingFrames).toBeGreaterThan(failingFramesBefore + 5);
+    expect(display.errors).toHaveLength(1);
+    expect(display.errors[0]).toMatch(/plain boom/);
+
+    // another value is reported at once, even while the series goes on
+    display.worker.postMessage({throwValueInEveryFrame: 'another plain boom'});
+    await expect.poll(() => display.errors).toHaveLength(2);
+    expect(display.errors[1]).toMatch(/another plain boom/);
+  });
+
   test('destroy() ends the frame loop and releases the signals of the display', async () => {
     const display = mountDisplay();
     await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
