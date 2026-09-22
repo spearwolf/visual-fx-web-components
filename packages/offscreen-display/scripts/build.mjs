@@ -1,13 +1,11 @@
 import * as esbuild from 'esbuild';
-import {dirname} from 'node:path';
-import {chdir} from 'node:process';
+import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-chdir(__dirname);
-
 const sharedBuildOptions = {
+  absWorkingDir: resolve(__dirname, '..'),
   bundle: true,
   minify: false,
   sourcemap: false,
