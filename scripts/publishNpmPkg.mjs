@@ -1,21 +1,18 @@
-import {exec, execSync} from 'node:child_process';
+import {execSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const workspaceRoot = path.resolve(fileURLToPath(import.meta.url), '../../');
 const projectRoot = path.resolve(process.cwd());
 const packageRoot = path.resolve(projectRoot, process.argv[2]);
 const pkgJson = JSON.parse(fs.readFileSync(path.resolve(packageRoot, 'package.json'), 'utf8'));
 
-console.log('workspaceRoot:', workspaceRoot);
 console.log('projectRoot:', projectRoot);
 console.log('packageRoot:', packageRoot);
 console.log('dryRun:', DRY_RUN ? 'yes' : 'no');
 console.log('env: ---');
-console.log(' - NODE_AUTH_TOKEN:', process.env.NODE_AUTH_TOKEN ? `${process.env.NODE_AUTH_TOKEN.substring(0, 6)}...` : 'unset');
+console.log(' - NODE_AUTH_TOKEN:', process.env.NODE_AUTH_TOKEN ? 'set' : 'unset');
 console.log('packageJson: ---');
 console.dir(pkgJson);
 
@@ -24,53 +21,37 @@ if (pkgJson.version.endsWith('-dev')) {
   process.exit(0);
 }
 
-exec(`npm show ${pkgJson.name} versions --json`, (error, stdout, stderr) => {
-  if (!error) {
-    const versions = JSON.parse(stdout);
-    console.log('already published versions: ---');
-    console.dir(versions);
+const versions = fetchPublishedVersions(pkgJson.name);
+console.log('already published versions: ---');
+console.dir(versions);
 
-    if (versions.includes(pkgJson.version)) {
-      console.warn('skip publishing, version', pkgJson.version, 'is already released');
-      process.exit(0);
-    } else {
-      publishPackage();
-    }
-  } else if (stderr?.toString().includes('E404')) {
-    // => npm ERR! code E404
-    console.log('oh it looks like this is the first time to publish the package');
-    publishPackage();
-  } else {
-    console.error(`exec() panic: ${stderr}`);
-    process.exit(1);
-  }
-});
-
-function publishPackage(dryRun = DRY_RUN) {
-  if (packageRoot !== projectRoot) {
-    preparePackageRoot();
-  }
-
-  execSync(`npm publish --access public${dryRun ? ' --dry-run' : ''}`, {cwd: packageRoot});
-
+if (versions.includes(pkgJson.version)) {
+  console.warn('skip publishing, version', pkgJson.version, 'is already released');
   process.exit(0);
 }
 
-function preparePackageRoot() {
-  copyFile(path.resolve(workspaceRoot, 'LICENSE'), path.resolve(packageRoot, 'LICENSE'));
-  copyFile(path.resolve(projectRoot, 'CHANGELOG.md'), path.resolve(packageRoot, 'CHANGELOG.md'));
+publishPackage();
 
-  const readmePkgPath = path.resolve(projectRoot, 'README-pkg.md');
-  const readmeDstPath = path.resolve(packageRoot, 'README.md');
-  if (fs.existsSync(readmePkgPath)) {
-    copyFile(readmePkgPath, readmeDstPath);
-  } else {
-    copyFile(path.resolve(projectRoot, 'README.md'), readmeDstPath);
+function fetchPublishedVersions(name) {
+  try {
+    const stdout = execSync(`npm show ${name} versions --json`, {encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']});
+    // npm prints a single version as a plain string instead of an array
+    return [JSON.parse(stdout)].flat();
+  } catch (error) {
+    if (error.stderr?.toString().includes('E404')) {
+      console.log('oh it looks like this is the first time to publish the package');
+      return [];
+    }
+    console.error(`npm show ${name} failed:`, error.stderr?.toString() || error.message);
+    process.exit(1);
   }
 }
 
-function copyFile(src, dst) {
-  if (fs.existsSync(src)) {
-    fs.copyFileSync(src, dst);
+function publishPackage(dryRun = DRY_RUN) {
+  try {
+    execSync(`npm publish --access public${dryRun ? ' --dry-run' : ''}`, {cwd: packageRoot, stdio: 'inherit'});
+  } catch (error) {
+    console.error(`npm publish failed for ${pkgJson.name}@${pkgJson.version} (exit code ${error.status ?? 'unknown'})`);
+    process.exit(1);
   }
 }

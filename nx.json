@@ -53,7 +53,7 @@
     },
     "publishNpmPkg": {
       "executor": "nx:run-script",
-      "dependsOn": ["buildNpmPkg"],
+      "dependsOn": ["buildNpmPkg", "^publishNpmPkg"],
       "options": {
         "script": "publishNpmPkg"
       }

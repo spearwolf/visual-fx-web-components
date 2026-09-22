@@ -37,7 +37,7 @@ $ pnpm cbt  # => clean build test e2e
 | `pnpm verify` | all of the above, as in the github workflow |
 
 > 🔎 This project does not currently use a separate issue tracking system; instead, TODO, FIXME, and XXX issues are written directly as comments in the source code, without any further indirection.
-> An overview of open issues can be found in [TODO.md](TODO.md).
+> Run `pnpm make:todo` to collect them into a local, gitignored `TODO.md`.
 
 ## 📖 Content
 

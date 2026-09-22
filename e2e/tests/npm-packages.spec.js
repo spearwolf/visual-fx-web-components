@@ -27,9 +27,14 @@ for (const name of PACKAGES) {
       expect(pkg.version).toBe(source.version);
       expect(pkg).not.toHaveProperty('scripts');
       expect(pkg).not.toHaveProperty('devDependencies');
-      for (const version of Object.values(pkg.dependencies ?? {})) {
+      for (const version of Object.values({...pkg.dependencies, ...pkg.peerDependencies})) {
         expect(version).not.toMatch(/^workspace:/);
       }
+      expect(pkg.repository).toEqual({
+        type: 'git',
+        url: 'git+https://github.com/spearwolf/visual-fx-web-components.git',
+        directory: `packages/${name}`,
+      });
     });
 
     test('contains every file its package.json refers to', () => {
@@ -42,15 +47,25 @@ for (const name of PACKAGES) {
       }
       expect(existsSync(new URL('LICENSE', packageDir))).toBe(true);
       expect(existsSync(new URL('README.md', packageDir))).toBe(true);
+      expect(existsSync(new URL('CHANGELOG.md', packageDir))).toBe(true);
     });
   });
 }
 
-test('rainbow-line depends on the current version of offscreen-display', () => {
+test('rainbow-line declares eventize and offscreen-display as optional peer dependencies', () => {
   const offscreenDisplay = readJson(new URL('offscreen-display/package.json', packagesDir));
+  const source = readJson(new URL('rainbow-line/package.json', packagesDir));
   const rainbowLine = readJson(new URL('rainbow-line/.npm-pkg/package.json', packagesDir));
 
-  expect(rainbowLine.dependencies['@spearwolf/offscreen-display']).toBe(`^${offscreenDisplay.version.replace(/-dev$/, '')}`);
+  expect(rainbowLine).not.toHaveProperty('dependencies');
+  expect(rainbowLine.peerDependencies).toEqual({
+    '@spearwolf/eventize': source.peerDependencies['@spearwolf/eventize'],
+    '@spearwolf/offscreen-display': `^${offscreenDisplay.version.replace(/-dev$/, '')}`,
+  });
+  expect(rainbowLine.peerDependenciesMeta).toEqual({
+    '@spearwolf/eventize': {optional: true},
+    '@spearwolf/offscreen-display': {optional: true},
+  });
 });
 
 test('the rainbow-line bundle carries a license banner with its version', () => {

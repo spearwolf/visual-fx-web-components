@@ -7,7 +7,5 @@ An astro wrapper for the [rainbow-line web component](https://github.com/spearwo
 
 ## CHANGELOG
 
-### 1.3.0 (2024-12-12)
-
-- update `rainbow-line` web component to `0.4.0`
+See [CHANGELOG.md](CHANGELOG.md).
 

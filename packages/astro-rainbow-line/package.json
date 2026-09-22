@@ -10,10 +10,18 @@
   },
   "license": "Apache-2.0",
   "homepage": "https://github.com/spearwolf/visual-fx-web-components",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spearwolf/visual-fx-web-components.git",
+    "directory": "packages/astro-rainbow-line"
+  },
   "scripts": {
     "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs .",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "astro": ">=5"
   },
   "devDependencies": {
     "astro": "^7.3.3"

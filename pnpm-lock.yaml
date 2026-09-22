@@ -83,14 +83,13 @@ importers:
         version: 0.28.2
 
   packages/rainbow-line:
-    dependencies:
+    devDependencies:
       '@spearwolf/eventize':
         specifier: ^6.2.0
         version: 6.2.0
       '@spearwolf/offscreen-display':
         specifier: workspace:*
         version: link:../offscreen-display
-    devDependencies:
       vite:
         specifier: ^8.3.0
         version: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(yaml@2.9.0)

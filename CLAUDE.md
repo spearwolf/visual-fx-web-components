@@ -21,13 +21,13 @@ pnpm verify                      # what GitHub Actions runs: lint, typecheck, bu
 pnpm nx build rainbow-line       # single project (nx project names are unscoped: offscreen-display, rainbow-line, astro-rainbow-line, e2e)
 pnpm nx test offscreen-display
 pnpm nx dev rainbow-line         # vite dev server on packages/rainbow-line/index.html
-pnpm make:todo                   # regenerate TODO.md from TODO/FIXME/XXX comments
+pnpm make:todo                   # collect TODO/FIXME/XXX comments into a local, gitignored TODO.md
 pnpm deps:update                 # interactive dependency update via npm-check (also in the packages)
 ```
 
 Script names must not collide with pnpm built-in commands (`pnpm help` lists them): for most of them, such as `ci` (a frozen clean install) or `update`, `pnpm <name>` runs the built-in and silently ignores the script. That is why the CI script is `verify` and the npm-check script is `deps:update`.
 
-Formatting and linting is Biome (`biome.json`): 130 cols, single quotes, trailing commas, no bracket spacing; `useImportExtensions` requires explicit `.js` extensions on relative imports. `.astro` files are checked too (full HTML support); `noTsIgnore` is off for them, because `@ts-expect-error` would break in consumer projects that have Astro's types.
+Formatting and linting is Biome (`biome.json`): 130 cols, single quotes, trailing commas, no bracket spacing; `useImportExtensions` requires explicit `.js` extensions on relative imports. `.astro` files are checked too (full HTML support); `noTsIgnore` is off for them, because `@ts-expect-error` would break in consumer projects that have Astro's types. The generated `audit.html` is excluded.
 
 `tsconfig.json` is only for `pnpm typecheck` (no emit). It maps `@spearwolf/offscreen-display` to its `src/`, so the check never sees build output. Test files are not type checked, since they import build output.
 
@@ -52,15 +52,17 @@ The core idea is **rendering a canvas inside a Web Worker via `OffscreenCanvas`*
 - **`packages/rainbow-line`** — the `<rainbow-line>` element built on the above. `RainbowLineElement` (main) maps HTML attributes to worker messages (`attributeChangedCallback` → `postMessage`); `RainbowLineWorkerDisplay.js` does the 2D-canvas drawing in `onFrame`; `rainbow-line.worker.js` is the worker entry. Build outputs land in the **package root**, not `dist/`:
   - `rainbow-line.js` + `rainbow-line.worker.js` — element loads the worker as a separate file via `new URL(..., import.meta.url)`.
   - `bundle.js` — the default export; `src/bundle.js` subclasses the element and inlines the worker via `scripts/esbuildInlineWorkerPlugin.mjs` (a `*.worker.js` import becomes a factory for a classic blob-url worker, bundled as iife with the same targets), so it is a single self-contained file.
-  - Depends on `@spearwolf/offscreen-display` via `workspace:*`, so nx builds offscreen-display first.
+  - Takes `@spearwolf/offscreen-display` (`workspace:*`) and `@spearwolf/eventize` as devDependencies and as optional peerDependencies: the built files inline both, only the source subpaths `./RainbowLineElement.js` and `./RainbowLineWorkerDisplay.js` import them. nx builds and publishes offscreen-display first.
 
-- **`packages/astro-rainbow-line`** (`@spearwolf/astro-rainbow-line`) — a single `RainbowLine.astro` component that renders `<rainbow-line>` elements and loads the script from `${BASE_URL}/js/rainbow-line-vX.Y.Z.js` (overridable via `RAINBOW_LINE_JS`). The consumer must host that file; a copy of the built rainbow-line bundle is committed here as `rainbow-line-v<version>.js`. When bumping rainbow-line, update that vendored file, the default path in `RainbowLine.astro`, and the README.
+- **`packages/astro-rainbow-line`** (`@spearwolf/astro-rainbow-line`) — a single `RainbowLine.astro` component that renders `<rainbow-line>` elements and loads the script from `${BASE_URL}/js/rainbow-line-vX.Y.Z.js` (overridable via `RAINBOW_LINE_JS`). The consumer must host that file; a copy of the built rainbow-line bundle is committed here as `rainbow-line-v<version>.js`. When bumping rainbow-line, update that vendored file, the default path in `RainbowLine.astro`, and the README. `astro` (`>=5`) is a peerDependency.
 
 ## Release / publishing
 
 Publishing happens automatically in CI on push to `main` (`pnpm publishNpmPkg`), so **bumping `version` in a package's `package.json` is effectively a release**. `scripts/publishNpmPkg.mjs` skips versions already on npm and versions ending in `-dev`.
 
-For `offscreen-display` and `rainbow-line`, `buildNpmPkg` assembles a separate `.npm-pkg/` directory: the package's `scripts/buildPackage.mjs` copies the built files, then `scripts/makePackageJson.mjs` writes the published `package.json` — stripping the `.npm-pkg/` path prefix, resolving `workspace:*` deps to `^<version>` of the sibling package, and applying `package.override.json` (a `null` value deletes the key, used to drop `scripts`/`devDependencies`). `astro-rainbow-line` publishes its directory as-is.
+nx publishes a package only after the workspace packages it depends on (`^publishNpmPkg`), so `offscreen-display` goes out before `rainbow-line` and a failed publish stops its dependents. The workflow runs the checks on pull requests as well, but publishes only on push to `main`, one run at a time (`concurrency: publish`) and with npm provenance (`NPM_CONFIG_PROVENANCE`, which needs the `repository` field in each package's `package.json`).
+
+For `offscreen-display` and `rainbow-line`, `buildNpmPkg` assembles a separate `.npm-pkg/` directory that holds exactly what `npm publish` receives: the package's `scripts/buildPackage.mjs` copies the built files, then `scripts/makePackageJson.mjs` writes the published `package.json` — resolving `workspace:*` in `dependencies` and `peerDependencies` to `^<version>` of the sibling package and applying `package.override.json` (a `null` value deletes the key, used to drop `scripts`/`devDependencies`). `astro-rainbow-line` publishes its directory as-is.
 
 esbuild outputs get a license banner from `scripts/makeBanner.mjs` containing the package version plus a build tag and date.
 

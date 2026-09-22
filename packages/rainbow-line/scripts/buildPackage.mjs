@@ -17,6 +17,7 @@ const COPY_FILES = [
   'src/RainbowLineWorkerDisplay.js',
   'LICENSE',
   'README.md',
+  'CHANGELOG.md',
   'example.html',
   'rainbow-line.worker.js',
   'rainbow-line.js',

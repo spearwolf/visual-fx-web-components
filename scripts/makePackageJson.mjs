@@ -25,8 +25,6 @@ const outPackageJson = {
   ...inPackageJson,
 };
 
-[[outPackageJson, ['main', 'module', 'types']], [outPackageJson.exports]].forEach(removeDistPathPrefix);
-
 resolveDependencies(outPackageJson.dependencies);
 resolveDependencies(outPackageJson.peerDependencies);
 
@@ -77,31 +75,4 @@ function resolvePackageVersion(pkgName) {
     );
   }
   return undefined;
-}
-
-// --------------------------------------------------------------------------------------------
-
-function removeDistPathPrefix([section, keys]) {
-  if (keys) {
-    keys.forEach((key) => {
-      removePathPrefixAt(section, key);
-    });
-  } else {
-    const replaceAllPropValues = (obj) => {
-      Object.keys(obj).forEach((key) => {
-        if (typeof obj[key] === 'string') {
-          removePathPrefixAt(obj, key);
-        } else if (typeof obj[key] === 'object') {
-          replaceAllPropValues(obj[key]);
-        }
-      });
-    };
-    replaceAllPropValues(section);
-  }
-}
-
-function removePathPrefixAt(section, key, prefix = `${targetSubDir}/`) {
-  if (section[key]) {
-    section[key] = section[key].replace(prefix, '');
-  }
 }

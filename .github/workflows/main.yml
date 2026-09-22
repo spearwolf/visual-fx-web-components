@@ -3,6 +3,10 @@ name: build and deploy
 on:
   push:
     branches: ['main']
+  pull_request: {}
+
+permissions:
+  contents: read
 
 jobs:
   ci:
@@ -35,7 +39,14 @@ jobs:
   publish:
     name: publish packages
     needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: publish
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
 
@@ -52,3 +63,4 @@ jobs:
         name: Publish npm packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'

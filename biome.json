@@ -14,7 +14,7 @@
       "!**/test-results",
       "!**/playwright-report",
       "!**/pnpm-lock.yaml",
-      "!**/TODO.md",
+      "!audit.html",
       "!**/*.svg",
       "!packages/rainbow-line/bundle.js",
       "!packages/rainbow-line/rainbow-line.js",

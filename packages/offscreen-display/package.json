@@ -8,6 +8,11 @@
     "url": "https://www.spearwolf.de"
   },
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spearwolf/visual-fx-web-components.git",
+    "directory": "packages/offscreen-display"
+  },
   "type": "module",
   "main": "dist/offscreen-display.js",
   "module": "dist/offscreen-display.js",

@@ -1,4 +1,4 @@
-# Changelog
+# Changelog for package [@spearwolf/astro-rainbow-line](https://github.com/spearwolf/visual-fx-web-components/tree/main/packages/astro-rainbow-line)
 
 All notable changes to this project will be documented in this file.
 
@@ -7,29 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- `OffscreenWorkerDisplay` ignored the `{isConnected: false}` message, so the worker kept rendering frames after the element was disconnected
-
 ### Changed
 
+- `astro` (`>=5`) is a peer dependency
 - published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements); `package.json` names the source `repository`
 
-## [0.2.0] - 2024-12-12
-
-### Added
-
-- introduce CHANGELOG.md ;)
+## [1.3.0] - 2024-12-12
 
 ### Changed
 
-- upgrade dependencies
-  - `@spearwolf/eventize` to `4.x`
-  - `@spearwolf/signalize` to `0.18.x`
-
-
-## [0.1.2] - 2024-02-27
-
-### Added
-
-- add JSDocs to `OffscreenDisplay` class
+- update `rainbow-line` web component to `0.4.0`
