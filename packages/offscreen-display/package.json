@@ -26,15 +26,15 @@
     "build:pkg:json": "pnpm node ../../scripts/makePackageJson.mjs",
     "build:pkg:clean": "pnpm exec rimraf .npm-pkg",
     "clean": "pnpm exec rimraf build types dist lib .npm-pkg",
-    "update": "pnpm dlx npm-check --update",
+    "deps:update": "pnpm dlx npm-check --update",
     "buildNpmPkg": "pnpm exec run-s build:pkg:clean build:pkg:prepare build:pkg:json",
     "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs .npm-pkg",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@spearwolf/eventize": "^4.0.1",
-    "@spearwolf/signalize": "^0.18.1"
+    "@spearwolf/eventize": "^6.2.0",
+    "@spearwolf/signalize": "^1.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"

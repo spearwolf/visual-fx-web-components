@@ -17,12 +17,15 @@ pnpm cbt                         # clean + build + test + e2e (all projects)
 pnpm build | pnpm test | pnpm e2e
 pnpm lint | pnpm format          # biome check / biome check --write (whole repo, not an nx target)
 pnpm typecheck                   # tsc (TypeScript 7) with checkJs over sources, scripts and e2e
-pnpm ci                          # what GitHub Actions runs: lint, typecheck, build, test, e2e
+pnpm verify                      # what GitHub Actions runs: lint, typecheck, build, test, e2e
 pnpm nx build rainbow-line       # single project (nx project names are unscoped: offscreen-display, rainbow-line, astro-rainbow-line, e2e)
 pnpm nx test offscreen-display
 pnpm nx dev rainbow-line         # vite dev server on packages/rainbow-line/index.html
 pnpm make:todo                   # regenerate TODO.md from TODO/FIXME/XXX comments
+pnpm deps:update                 # interactive dependency update via npm-check (also in the packages)
 ```
+
+Script names must not collide with pnpm built-in commands (`pnpm help` lists them): for most of them, such as `ci` (a frozen clean install) or `update`, `pnpm <name>` runs the built-in and silently ignores the script. That is why the CI script is `verify` and the npm-check script is `deps:update`.
 
 Formatting and linting is Biome (`biome.json`): 130 cols, single quotes, trailing commas, no bracket spacing; `useImportExtensions` requires explicit `.js` extensions on relative imports. `.astro` files are checked too (full HTML support); `noTsIgnore` is off for them, because `@ts-expect-error` would break in consumer projects that have Astro's types.
 

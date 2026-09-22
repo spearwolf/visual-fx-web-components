@@ -24,10 +24,10 @@
     "playwright:install": "playwright install chromium",
     "clean": "pnpm nx run-many -t clean && pnpm rimraf dist",
     "clear-cache": "pnpm nx reset && pnpm nx run-many -t clean && pnpm rimraf dist",
-    "update": "pnpm dlx npm-check --update",
+    "deps:update": "pnpm dlx npm-check --update",
     "cbt": "pnpm run-s clean build test e2e",
     "make:todo": "pnpm node scripts/makeTODO.mjs TODO.md",
-    "ci": "pnpm run-s lint typecheck build test e2e",
+    "verify": "pnpm run-s lint typecheck build test e2e",
     "publishNpmPkg": "pnpm nx run-many -t publishNpmPkg"
   },
   "devDependencies": {

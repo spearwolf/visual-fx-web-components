@@ -38,7 +38,7 @@
     "build:pkg:json": "pnpm node ../../scripts/makePackageJson.mjs",
     "build:pkg:clean": "pnpm exec rimraf .npm-pkg",
     "clean": "pnpm exec rimraf dist bundle.js rainbow-line.js rainbow-line.worker.js .npm-pkg",
-    "update": "pnpm dlx npm-check --update",
+    "deps:update": "pnpm dlx npm-check --update",
     "buildNpmPkg": "pnpm exec run-s build:pkg:clean build:pkg:prepare build:pkg:json",
     "publishNpmPkg": "pnpm node ../../scripts/publishNpmPkg.mjs .npm-pkg",
     "test": "vitest run",
@@ -48,7 +48,7 @@
     "vite": "^8.3.0"
   },
   "dependencies": {
-    "@spearwolf/eventize": "^4.0.1",
+    "@spearwolf/eventize": "^6.2.0",
     "@spearwolf/offscreen-display": "workspace:*"
   }
 }

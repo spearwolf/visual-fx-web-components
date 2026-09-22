@@ -72,11 +72,11 @@ importers:
   packages/offscreen-display:
     dependencies:
       '@spearwolf/eventize':
-        specifier: ^4.0.1
-        version: 4.3.1
+        specifier: ^6.2.0
+        version: 6.2.0
       '@spearwolf/signalize':
-        specifier: ^0.18.1
-        version: 0.18.1(@spearwolf/eventize@4.3.1)
+        specifier: ^1.0.0
+        version: 1.0.0(@spearwolf/eventize@6.2.0)
     devDependencies:
       esbuild:
         specifier: ^0.28.2
@@ -85,8 +85,8 @@ importers:
   packages/rainbow-line:
     dependencies:
       '@spearwolf/eventize':
-        specifier: ^4.0.1
-        version: 4.3.1
+        specifier: ^6.2.0
+        version: 6.2.0
       '@spearwolf/offscreen-display':
         specifier: workspace:*
         version: link:../offscreen-display
@@ -893,15 +893,15 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
-  '@spearwolf/eventize@4.3.1':
-    resolution: {integrity: sha512-QrHS2anine6WGfkHh/jg3WPsKa5StLyrh343XR9t68FkX1SOZ9R9S1cnk37YqmvukCZNz44FOe/mWHPR9xbP8A==}
+  '@spearwolf/eventize@6.2.0':
+    resolution: {integrity: sha512-Tqc90j9w87+4HlOEnmNApT/6eyy+laXKRG+C/ZQJeCDb8T3kPSnTIwA/Uet3RM+qeYOw5kq/ZMqb5AYkIN3mzw==}
     engines: {node: '>=18.16'}
 
-  '@spearwolf/signalize@0.18.1':
-    resolution: {integrity: sha512-rzkGZYTK1ITot6yLflmvvO7jk6/mDsqNSkTNR3/94sjRQWRDVD6H3LNH0AiB5jG9naIyPs8g1xyMd/0OgvFy7g==}
-    engines: {node: '>=20.12'}
+  '@spearwolf/signalize@1.0.0':
+    resolution: {integrity: sha512-hZ5IN0GoU7XKO5OOzUXnscdKxZaEg1HJa6UUg02VQhtbAJa8qsODsAf5U8g9YtXl9d0TRLJ2a4gCzE2107NPQA==}
+    engines: {node: '>=22'}
     peerDependencies:
-      '@spearwolf/eventize': ^4.0.1
+      '@spearwolf/eventize': ^6.0.0
 
   '@tybys/wasm-util@0.10.4':
     resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
@@ -3155,11 +3155,11 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@spearwolf/eventize@4.3.1': {}
+  '@spearwolf/eventize@6.2.0': {}
 
-  '@spearwolf/signalize@0.18.1(@spearwolf/eventize@4.3.1)':
+  '@spearwolf/signalize@1.0.0(@spearwolf/eventize@6.2.0)':
     dependencies:
-      '@spearwolf/eventize': 4.3.1
+      '@spearwolf/eventize': 6.2.0
 
   '@tybys/wasm-util@0.10.4':
     dependencies:

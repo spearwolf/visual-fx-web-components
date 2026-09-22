@@ -23,7 +23,7 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run all checks
-        run: pnpm run ci
+        run: pnpm verify
 
       - uses: actions/upload-artifact@v7
         if: failure()

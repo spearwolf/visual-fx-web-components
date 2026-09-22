@@ -34,7 +34,7 @@ $ pnpm cbt  # => clean build test e2e
 | `pnpm typecheck` | type check the javascript sources with typescript |
 | `pnpm test` | blackbox tests of every package against its build output ([vitest](https://vitest.dev/) browser mode) |
 | `pnpm e2e` | the published packages used together, like a consumer would ([playwright](https://playwright.dev/)) |
-| `pnpm ci` | all of the above, as in the github workflow |
+| `pnpm verify` | all of the above, as in the github workflow |
 
 > 🔎 This project does not currently use a separate issue tracking system; instead, TODO, FIXME, and XXX issues are written directly as comments in the source code, without any further indirection.
 > An overview of open issues can be found in [TODO.md](TODO.md).
