@@ -20,9 +20,11 @@ export default defineConfig({
   },
   projects: [
     {name: 'chromium', use: {...devices['Desktop Chrome']}},
-    // npm-packages.spec.js only reads files and needs no browser, running it once is enough
-    {name: 'firefox', use: {...devices['Desktop Firefox']}, testIgnore: 'npm-packages.spec.js'},
-    ...(skipWebkit ? [] : [{name: 'webkit', use: {...devices['Desktop Safari']}, testIgnore: 'npm-packages.spec.js'}]),
+    // npm-packages.spec.js and server.spec.js need no browser, running them once is enough
+    {name: 'firefox', use: {...devices['Desktop Firefox']}, testIgnore: ['npm-packages.spec.js', 'server.spec.js']},
+    ...(skipWebkit
+      ? []
+      : [{name: 'webkit', use: {...devices['Desktop Safari']}, testIgnore: ['npm-packages.spec.js', 'server.spec.js']}]),
   ],
   webServer: {
     command: 'node server.mjs',

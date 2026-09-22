@@ -28,6 +28,24 @@ The default export `bundle.js` is a single file with the worker embedded, it def
 
 `rainbow-line/rainbow-line.js` defines the element as well, but loads its worker from `rainbow-line.worker.js` in the same directory: ship both files together.
 
+### Source modules for bundlers
+
+The subpaths `rainbow-line/RainbowLineElement.js` and `rainbow-line/RainbowLineWorkerDisplay.js` are the unbundled sources, with type declarations. They import `@spearwolf/offscreen-display` and `@spearwolf/eventize`, which are optional peer dependencies of this package, so install them next to it:
+
+```sh
+➜ npm i rainbow-line @spearwolf/offscreen-display @spearwolf/eventize
+```
+
+`RainbowLineElement` does not register itself:
+
+```javascript
+import {RainbowLineElement} from 'rainbow-line/RainbowLineElement.js';
+
+customElements.define('rainbow-line', RainbowLineElement);
+```
+
+Its `createWorker()` starts the worker source `src/rainbow-line.worker.js` of the package with `new Worker(new URL('./rainbow-line.worker.js', import.meta.url), {type: 'module'})`, the pattern bundlers such as Vite and webpack recognise and bundle as a worker. A worker of your own overrides `createWorker()` and hands every message it receives to `parseMessageData()` from `rainbow-line/RainbowLineWorkerDisplay.js`, as `src/rainbow-line.worker.js` does.
+
 ## Attributes
 
 | Attribute | Default | Values |

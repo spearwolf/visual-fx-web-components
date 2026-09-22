@@ -266,6 +266,26 @@ export function describeRainbowLine(variant) {
       expect(colorEdges(next)).toEqual([60, 120, 180, 240, 300]);
     });
 
+    test('ignores worker messages that are not objects', async () => {
+      const line = mountRainbowLine();
+      await readDrawnRow(line);
+
+      const errors = [];
+      line.worker.addEventListener('error', (event) => {
+        // otherwise the browser reports it as an unhandled error of the page and vitest aborts the run
+        event.preventDefault();
+        errors.push(event.message);
+      });
+      for (const data of [null, undefined, 42, 'cycle-colors']) {
+        line.worker.postMessage(data);
+      }
+
+      // the worker handles its messages in order: once the new colors show, it has seen the ones before
+      line.setAttribute('cycle-colors', 'red blue');
+      await expectRedAndBlueOnly(line);
+      expect(errors).toEqual([]);
+    });
+
     test('terminates its worker once it has been removed', async () => {
       const line = mountRainbowLine();
       await readDrawnRow(line);

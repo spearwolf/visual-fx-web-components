@@ -226,5 +226,5 @@ export class OffscreenDisplay extends HTMLElement {
     this.worker = undefined;
   }
 
-  // TODO adpoptedCallback ?
+  // TODO adoptedCallback ?
 }

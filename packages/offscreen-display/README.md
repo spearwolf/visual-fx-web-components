@@ -2,7 +2,7 @@
 
 ![npm (scoped)](https://img.shields.io/npm/v/%40spearwolf/offscreen-display) [![License](https://img.shields.io/badge/License-Apache_2.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A minimal javascript library that makes it pretty easy for you to create a _custom element_ that creates an _offline canvas_ in a _web worker_ and renders it in the _animation frame_ loop of the browser.
+A minimal javascript library that makes it pretty easy for you to create a _custom element_ that hands its canvas over to a _web worker_ as an [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) and renders it in the _animation frame_ loop of the browser.
 
 Whether webgl, webgpu or 2d context is up to the user, the class takes care of the synchronization of the element dimension and rendering of the frames.
 

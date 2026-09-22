@@ -90,17 +90,36 @@ test('rainbow-line declares eventize and offscreen-display as optional peer depe
   });
 });
 
-test('the published source modules of rainbow-line only import published files', () => {
+test('the published source modules of rainbow-line only reference published files', () => {
   const packageDir = new URL('rainbow-line/.npm-pkg/', packagesDir);
   const pkg = readJson(new URL('package.json', packageDir));
   const sources = exportTargets(pkg.exports).filter((target) => target.startsWith('./src/'));
 
   expect(sources.length).toBeGreaterThan(0);
-  for (const source of sources) {
+
+  const REFERENCE_PATTERNS = [
+    /\bfrom\s+'(\.{1,2}\/[^']+)'/g,
+    /\bimport\s+'(\.{1,2}\/[^']+)'/g,
+    /\bnew URL\(\s*['"]([^'"]+)['"]\s*,\s*import\.meta\.url\s*\)/g,
+  ];
+
+  const visited = new Set();
+  const queue = [...sources];
+  while (queue.length > 0) {
+    const source = queue.shift();
     const url = new URL(source, packageDir);
+    if (visited.has(url.href)) continue;
+    visited.add(url.href);
+
     const code = readFileSync(url, 'utf8');
-    for (const [, specifier] of code.matchAll(/\bfrom\s+'(\.{1,2}\/[^']+)'/g)) {
-      expect(existsSync(new URL(specifier, url)), `${specifier} imported by ${source} exists`).toBe(true);
+    for (const pattern of REFERENCE_PATTERNS) {
+      for (const [, specifier] of code.matchAll(pattern)) {
+        const target = new URL(specifier, url);
+        expect(existsSync(target), `${specifier} referenced by ${source} exists`).toBe(true);
+        if (target.pathname.endsWith('.js')) {
+          queue.push(target.pathname.slice(new URL('.', packageDir).pathname.length));
+        }
+      }
     }
   }
 });

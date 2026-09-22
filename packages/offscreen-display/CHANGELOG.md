@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the worker kept running after its element was removed from the document
 - an `onFrame` listener that threw ended the animation
 - `OffscreenWorkerDisplay` ignored the `{isConnected: false}` message, so the worker kept rendering frames after the element was disconnected
+- `OffscreenWorkerDisplay#parseMessageData()` threw on message data that is not an object, such as a number or a string; it ignores such data like `null`
 
 ## [0.2.0] - 2024-12-12
 

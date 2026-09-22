@@ -2,6 +2,7 @@ import {afterEach, describe, expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {decodePngRow} from '../../../testing/pixels.js';
 import {OffscreenDisplay} from '../dist/offscreen-display.js';
+import {OffscreenWorkerDisplay} from '../dist/offscreen-display-worker.js';
 
 class TestDisplay extends OffscreenDisplay {
   events = [];
@@ -281,6 +282,19 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
         .toEqual({event: 'resize', width: 320, height: 240, pixelRatio: 1});
     } finally {
       ResizeObserver.prototype.observe = observe;
+    }
+  });
+});
+
+describe('OffscreenWorkerDisplay', () => {
+  test('parseMessageData() ignores message data that is not an object', () => {
+    const display = new OffscreenWorkerDisplay();
+    try {
+      for (const data of [null, undefined, 0, 42, '', 'resize', true]) {
+        expect(() => display.parseMessageData(data)).not.toThrow();
+      }
+    } finally {
+      display.destroy();
     }
   });
 });

@@ -1,7 +1,8 @@
-import {createReadStream, statSync} from 'node:fs';
+import {createReadStream} from 'node:fs';
 import {createServer} from 'node:http';
-import {extname, join, normalize, resolve} from 'node:path';
+import {extname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {resolveFile} from './resolveFile.mjs';
 
 // A deliberately dumb static file server: no transforms, no bundling, no module resolution.
 // Whatever the packages publish is served exactly as it is, like from a CDN.
@@ -26,27 +27,16 @@ const MIME_TYPES = {
   '.json': 'application/json; charset=utf-8',
 };
 
-/**
- * @param {string} urlPath
- */
-function resolveFile(urlPath) {
-  for (const [prefix, dir] of Object.entries(ROUTES)) {
-    if (urlPath.startsWith(prefix)) {
-      const file = normalize(join(dir, urlPath.slice(prefix.length)));
-      if (!file.startsWith(dir)) return undefined;
-      try {
-        const stat = statSync(file);
-        return stat.isDirectory() ? join(file, 'index.html') : file;
-      } catch {
-        return undefined;
-      }
-    }
-  }
-  return undefined;
-}
-
 createServer((req, res) => {
-  const file = resolveFile(decodeURIComponent(new URL(req.url, 'http://localhost').pathname));
+  let urlPath;
+  try {
+    urlPath = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  } catch {
+    // a malformed escape such as %E0%A4%A throws a URIError, which would end the whole server
+    res.writeHead(400).end('bad request');
+    return;
+  }
+  const file = resolveFile(ROUTES, urlPath);
   if (!file) {
     res.writeHead(404).end('not found');
     return;

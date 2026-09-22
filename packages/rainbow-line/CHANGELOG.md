@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements); `package.json` names the source `repository`
 - every frame is drawn with two `drawImage` calls from a pre-rendered strip of colors, however narrow the slices are
 - the README documents all attributes with their defaults and values
-- the README shows how to use the package from npm
+- the README shows how to use the package from npm, including the source modules for bundlers
 
 ### Fixed
 
@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - removing a numeric attribute sets it back to its default
 - `cycle-colors` accepts colors separated by commas, tabs and line breaks; invalid colors are skipped with a console warning, and without any valid color the line shows the rainbow
 - `cycle-colors-repeat` takes effect when it changes while the element is connected
+- `RainbowLineElement` from the source subpath `./RainbowLineElement.js` loaded its worker from a `src/rainbow-line.worker.js` that was missing from the package
+- `parseMessageData()` from `./RainbowLineWorkerDisplay.js` threw on `null`, `undefined` and other message data that is not an object; it ignores such data
 
 ## [0.4.0] - 2024-12-12
 

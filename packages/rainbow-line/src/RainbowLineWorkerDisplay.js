@@ -89,10 +89,12 @@ on(
 );
 
 /**
- * @param {Record<string, any>} data
+ * @param {Record<string, any> | null | undefined} data
  */
 export function parseMessageData(data) {
   display.parseMessageData(data);
+
+  if (typeof data !== 'object' || data === null) return;
 
   if ('color-slice-width' in data) {
     colorSliceWidth = toPositiveNumber(data['color-slice-width'], DEFAULT_COLOR_SLICE_WIDTH);

@@ -186,7 +186,7 @@ export class OffscreenWorkerDisplay {
    * @param {OffscreenDisplayMessage | null | undefined} data
    */
   parseMessageData(data) {
-    if (!data || this.#destroyed) return;
+    if (typeof data !== 'object' || data === null || this.#destroyed) return;
 
     if (data.canvas) {
       this.#contextAttributes = data.contextAttributes || undefined;

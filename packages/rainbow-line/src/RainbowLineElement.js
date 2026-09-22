@@ -63,7 +63,7 @@ export class RainbowLineElement extends OffscreenDisplay {
   }
 
   createWorker() {
-    return new Worker(new URL('rainbow-line.worker.js', import.meta.url), {
+    return new Worker(new URL('./rainbow-line.worker.js', import.meta.url), {
       type: 'module',
     });
   }
