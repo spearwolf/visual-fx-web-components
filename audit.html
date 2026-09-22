@@ -11,7 +11,7 @@
     "generator": "js-ts-project-audit",
     "lang": "de",
     "templateVersion": "2.0.0",
-    "generatedAt": "2026-09-22T09:06:42.349Z"
+    "generatedAt": "2026-09-22T11:45:20.111Z"
   },
   "summary": {
     "project": "visual-fx-web-components",
@@ -77,38 +77,35 @@
     "domains": {
       "code": {
         "executiveSummary": "Jede `\u003crainbow-line>`, die aus dem DOM verschwindet, lässt ihren Worker-Thread samt OffscreenCanvas zurück: nach 30 Zyklen »anlegen + entfernen« leben 32 Worker im Tab, die Bibliothek bietet keinen Weg, sie zu beenden. Ein `color-slice-width` von `0` (oder ein Wert, der auf 0 Pixel rundet) schickt den Worker in eine Endlosschleife bei 100 % CPU, und weil eine Exception im Frame-Listener den rAF-Loop nie wieder anstößt, friert die Animation auch bei einer ungültigen Farbe in `cycle-colors` dauerhaft ein. Der Zeichenpfad selbst ist korrekt, aber teuer: pro Frame ein `fillStyle`-String-Parse plus `fillRect` je Farbscheibe, auf dem Main-Thread dazu ein `getBoundingClientRect()` pro Frame und Element, und die Canvas-Auflösung ignoriert `devicePixelRatio`.",
-        "score": 33,
-        "penalty": 17.5,
+        "score": 95,
+        "penalty": 0.5,
         "bySeverity": {
           "critical": 0,
-          "high": 2,
-          "medium": 3,
-          "low": 3,
+          "high": 0,
+          "medium": 0,
+          "low": 1,
           "info": 0
         },
         "byCategory": {
-          "resources": 2,
-          "correctness": 5,
-          "readability": 1
+          "correctness": 1
         }
       },
       "harness": {
         "executiveSummary": "Das Gerüst ist frisch renoviert und grün: Biome, Typecheck, 33 Package-Tests im Browser und 16 E2E-Tests laufen sauber, alle Dependencies sind aktuell. Was fehlt, ist die Auslieferung des Geprüften: beide Changelogs führen Fixes unter »Unreleased«, während npm noch den kaputten Worker-Export von `rainbow-line@0.4.0` und den nie stoppenden Frame-Loop von `offscreen-display@0.2.0` ausliefert. Die README von `offscreen-display` zeigt ein Beispiel, das seit eventize 6 mit einem TypeError abbricht, und TypeScript-Konsumenten bekommen keine Typen, weil kein `.d.ts` mitgeliefert wird.",
-        "score": 84,
-        "penalty": 11.5,
+        "score": 98,
+        "penalty": 1.5,
         "bySeverity": {
           "critical": 0,
           "high": 0,
-          "medium": 5,
+          "medium": 0,
           "low": 3,
-          "info": 0
+          "info": 4
         },
         "byCategory": {
-          "build": 3,
-          "dx": 2,
-          "types": 1,
-          "testing": 1,
-          "dependencies": 1
+          "testing": 2,
+          "types": 2,
+          "consistency": 1,
+          "build": 2
         }
       }
     },
@@ -117,15 +114,15 @@
         "name": "offscreen-display",
         "path": "packages/offscreen-display",
         "reviewedLoc": 357,
-        "findings": 4,
-        "score": 51
+        "findings": 0,
+        "score": 100
       },
       {
         "name": "rainbow-line",
         "path": "packages/rainbow-line",
         "reviewedLoc": 291,
-        "findings": 4,
-        "score": 44
+        "findings": 1,
+        "score": 91
       },
       {
         "name": "astro-rainbow-line",
@@ -143,7 +140,7 @@
       }
     ],
     "scoreModel": 2,
-    "score": 53,
+    "score": 96,
     "scoring": {
       "model": 2,
       "weights": {
@@ -159,34 +156,37 @@
     },
     "bySeverity": {
       "critical": 0,
-      "high": 2,
-      "medium": 8,
-      "low": 6,
-      "info": 0
+      "high": 0,
+      "medium": 0,
+      "low": 4,
+      "info": 4
     },
     "byCategory": {
-      "resources": 2,
-      "correctness": 5,
-      "readability": 1,
-      "build": 3,
-      "dx": 2,
-      "types": 1,
-      "testing": 1,
-      "dependencies": 1
+      "testing": 2,
+      "correctness": 1,
+      "types": 2,
+      "consistency": 1,
+      "build": 2
     },
     "byComponent": {
-      "offscreen-display-main": 2,
-      "rainbow-line": 4,
-      "offscreen-display-worker": 2,
-      "build-release": 7,
-      "testing": 1
+      "testing": 2,
+      "rainbow-line": 2,
+      "offscreen-display-worker": 1,
+      "astro-rainbow-line": 1,
+      "build-release": 2
     },
     "counts": {
-      "findings": 16,
-      "improvements": 4,
+      "findings": 8,
+      "improvements": 1,
       "byStatus": {
-        "new": 16
+        "new": 8
       }
+    },
+    "resolvedCount": 19,
+    "lastRun": {
+      "source": "remediation",
+      "date": "2026-09-22",
+      "ref": "2026-09-22"
     }
   },
   "portrait": {
@@ -347,358 +347,166 @@
   },
   "findings": [
     {
-      "id": "RES-001",
-      "category": "resources",
-      "domain": "code",
-      "component": "offscreen-display-main",
-      "package": "offscreen-display",
-      "severity": "high",
-      "title": "Worker beim Entfernen des Elements beenden und eine `dispose()`-API anbieten",
-      "location": "packages/offscreen-display/src/lib/main/OffscreenDisplay.js:155",
-      "locations": [
-        "packages/offscreen-display/src/lib/main/OffscreenDisplay.js:113",
-        "packages/offscreen-display/test/offscreen-display.test.js:54",
-        "packages/rainbow-line/test/rainbowLineBehaviour.js:45"
-      ],
-      "description": "`disconnectedCallback()` schickt nur `{isConnected: false}` und stoppt den Main-Thread-rAF; der Worker selbst wird nie terminiert, und es gibt keine öffentliche Methode dafür. Ein Dedicated Worker mit registriertem `message`-Listener ist ein *protected worker* und wird vom Browser erst mit dem Dokument aufgeräumt. Jede Element-Instanz, die eine SPA anlegt und wieder verwirft (Routing, Listen, Re-Render), hinterlässt also dauerhaft einen Thread, das transferierte OffscreenCanvas samt Backing-Store, alle signalize-Signale und -Effekte sowie das eventize-Registry im Worker. Die eigenen Tests umgehen das, indem sie `line.worker?.terminate()` in `afterEach` selbst aufrufen — die Suite dokumentiert damit die fehlende Lifecycle-API, statt sie zu fordern.",
-      "evidence": "Messung mit Playwright gegen `e2e/pages/bundle.html`: 2 Worker nach dem Laden, nach 30× `createElement` + `append` + `remove` und erzwungenem GC: **32 Worker**. Im Quelltext von `src/` kommt `terminate` nicht vor.",
-      "recommendation": "Eine `dispose()`-Methode einführen, die `worker.terminate()` aufruft, den rAF cancelt und `this.worker = undefined` setzt. In `disconnectedCallback()` das Beenden mit einer kurzen Gnadenfrist (Microtask oder ein rAF) planen, damit ein reines DOM-Verschieben (`append` an anderer Stelle im selben Tick) den Worker behält; kommt innerhalb der Frist ein `connectedCallback()`, wird die Frist verworfen. Da die Canvas-Kontrolle nur einmal übertragbar ist, muss `#setupWorker()` bei einem späteren Re-Connect ein frisches `\u003ccanvas>` in den Shadow-Root setzen (altes Element durch `cloneNode(false)` ersetzen). Zusätzlich ein `FinalizationRegistry` als Backstop, das den Worker terminiert, wenn das Element ohne `dispose()` unerreichbar wird. Die Tests sollten anschließend mit `page.workers().length` bzw. einer Zählung im Worker-Fixture prüfen, dass nach `remove()` kein Worker übrig bleibt.",
-      "effort": "M",
-      "status": "new"
-    },
-    {
-      "id": "CORR-001",
-      "category": "correctness",
-      "domain": "code",
-      "component": "rainbow-line",
-      "package": "rainbow-line",
-      "severity": "high",
-      "title": "Numerische Attribute im Worker validieren: `color-slice-width` ≤ 0 hängt den Worker in einer Endlosschleife",
-      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:26",
-      "locations": [
-        "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:31",
-        "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:34",
-        "packages/rainbow-line/src/RainbowLineElement.js:48",
-        "packages/rainbow-line/src/RainbowLineElement.js:66"
-      ],
-      "description": "Die Zeichenschleife läuft `while (x \u003c w) { …; x += _colorSliceWidth }`. Für `color-slice-width=\"0\"`, negative Werte oder Brüche, die nach `Math.round(colorSliceWidth * w)` auf 0 Pixel landen (`0.001` bei 360 px Breite), wird `_colorSliceWidth` 0 oder negativ — die Schleife terminiert nie. Der Worker-Thread steht dann bei 100 % CPU, verarbeitet keine Nachricht mehr und lässt sich mangels `terminate`-Pfad (siehe RES-001) nur noch durch Neuladen der Seite loswerden. `asNumberValue()` und `attributeChangedCallback()` reichen jede endliche Zahl durch, eine Prüfung findet auf keiner Seite statt. Dieselbe Lücke wirkt leiser bei den anderen Zahlen: `slice-cycle-time=\"0\"` erzeugt `now % 0 = NaN` und damit einen ungültigen `hsl(NaN…)`-String, den der Canvas stillschweigend ignoriert — die Linie friert auf der letzten Farbe ein; `cycle-colors-repeat=\"0\"` liefert `Infinity`, einen `NaN`-Index in die Gradient-LUT und `rgb(undefined,…)`.",
-      "evidence": "`const _colorSliceWidth = colorSliceWidth \u003c 1 ? Math.round(colorSliceWidth * w) : colorSliceWidth;` gefolgt von `x += _colorSliceWidth;` ohne untere Schranke.",
-      "recommendation": "Im Worker in `parseMessageData()` jede Zahl normalisieren: `colorSliceWidth = Number.isFinite(v) && v > 0 ? v : 10`, in `onFrame` zusätzlich `_colorSliceWidth = Math.max(1, Math.round(...))`; `sliceCycleTime` auf `> 0` klemmen, `cycleColorsRepeat` auf `> 0`. Dieselben Schranken auf dem Main-Thread in `attributeChangedCallback()`, damit ungültige Werte gar nicht erst gesendet werden. Einen Test ergänzen, der `color-slice-width=\"0\"` setzt und prüft, dass die Linie weiter animiert.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "CORR-002",
-      "category": "correctness",
-      "domain": "code",
-      "component": "offscreen-display-worker",
-      "package": "offscreen-display",
-      "severity": "medium",
-      "title": "Frame-Loop gegen Exceptions im `onFrame`-Listener absichern",
-      "location": "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:84",
-      "description": "`#onFrame()` emittiert `onFrame` und ruft erst danach `#requestAnimationFrame()`. eventize' `emit()` lässt eine Exception aus einem Listener nach oben durchschlagen, also wird der nächste Frame nie angefordert: ein einziger Fehler in einer Zeichenroutine beendet die Animation dauerhaft und lautlos (im Main-Thread kommt nur ein generisches `error`-Event am Worker an, das niemand abonniert). Für `rainbow-line` ist das der Pfad, über den eine ungültige Farbe (CORR-003) die Linie einfriert. Auch `isConnected: true` nach so einem Absturz hilft nicht, weil `parseMessageData()` den Loop nur bei einem Zustandswechsel neu startet.",
-      "evidence": "`emit(this.#emitter, OffscreenWorkerDisplay.Frame, this);` in Zeile 94, `this.#requestAnimationFrame();` erst in Zeile 98 — kein `try`/`finally`.",
-      "recommendation": "Den nächsten Frame vor dem Emit anfordern oder den Emit in `try { … } finally { this.#requestAnimationFrame(); }` packen. Optional `emitSafe()` für `onFrame` erwägen, dann läuft bei mehreren Listenern der Rest des Frames weiter; der Preis ist laut eventize-Dokumentation ein prozessweiter Overhead von rund 29 % pro Dispatch, sobald eine guarded Variante einmal benutzt wurde — bei einem einzigen Listener pro Worker ist `try`/`finally` die günstigere Wahl. Fehler zusätzlich per `self.postMessage({error})` an den Main-Thread melden, damit ein Element darauf reagieren kann.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "CORR-003",
-      "category": "correctness",
-      "domain": "code",
-      "component": "rainbow-line",
-      "package": "rainbow-line",
-      "severity": "medium",
-      "title": "`cycle-colors` robust parsen und ungültige Farben abfangen",
-      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:63",
-      "locations": [
-        "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:82",
-        "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:98"
-      ],
-      "description": "Die Farbliste wird mit dem Regex `/(#[a-f0-9]+|[a-z]+\\([^)]+\\)|[a-z]+([^(]|$))( |$)+/g` zerlegt. Die Alternative `[a-z]+([^(]|$)` verschluckt das Zeichen hinter einem Farbnamen, so wird aus `red, blue` das Token `red,`; Tabs oder Zeilenumbrüche als Trenner passen gar nicht. Jedes ungültige Token landet in `gradient.addColorStop()`, das mit `SyntaxError` wirft — mitten im Message-Handler, nachdem `cycleColors` schon gesetzt ist. Beim ersten Setzen bleibt `gradientImageData` dann `null`, der nächste `onFrame` wirft `TypeError` und der Loop stirbt (CORR-002). Nutzereingaben wie `cycle-colors=\"red, blue\"` oder ein Tippfehler im Farbnamen machen das Element damit unbrauchbar. Nebenbei erzeugt `createLinearGradientImage()` den Gradient über `ctx` (Haupt-Canvas) statt über `gradientCtx`, obwohl er nur auf der Gradient-Canvas gezeichnet wird.",
-      "evidence": "Token-Beispiel: `'red, blue'.toLowerCase().matchAll(...)` → `['red,', 'blue']`; `addColorStop(0, 'red,')` wirft `SyntaxError: The value provided ('red,') could not be parsed as a color.`",
-      "recommendation": "Auf `split(/[\\s,]+/)` umstellen, leere Tokens filtern, und `addColorStop()` je Token in `try`/`catch` nehmen — ungültige Farben überspringen und per `console.warn` melden. Den alten Gradient erst ersetzen, wenn mindestens eine gültige Farbe übrig ist; bei null gültigen Farben auf den Regenbogen-Modus zurückfallen. `createLinearGradient()` über `gradientCtx` erzeugen. Tests für `red, blue`, Mehrfach-Whitespace und einen ungültigen Namen ergänzen.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "CORR-004",
-      "category": "correctness",
-      "domain": "code",
-      "component": "rainbow-line",
-      "package": "rainbow-line",
-      "severity": "medium",
-      "title": "`cycle-colors-repeat` in `observedAttributes` aufnehmen",
-      "location": "packages/rainbow-line/src/RainbowLineElement.js:8",
-      "locations": [
-        "packages/rainbow-line/src/RainbowLineElement.js:52",
-        "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:69"
-      ],
-      "description": "`getInitialWorkerAttributes()` sendet `cycle-colors-repeat` beim Verbinden, und der Worker verarbeitet das Feld auch in `parseMessageData()`. In `observedAttributes` fehlt der Name jedoch, deshalb löst eine spätere Änderung (`setAttribute`, Framework-Binding) keinen `attributeChangedCallback()` aus — das Attribut wirkt nur beim ersten Connect. Der Astro-Wrapper reicht es als Prop durch, der Fehler ist also auch dort sichtbar, sobald sich der Wert dynamisch ändert. Der Test »reacts to attribute changes after it has been connected« deckt genau dieses Attribut nicht ab.",
-      "evidence": "`static observedAttributes = ['color-slice-width', 'slice-cycle-time', 'cycle-direction', 'cycle-colors'];`",
-      "recommendation": "`'cycle-colors-repeat'` ergänzen; `attributeChangedCallback()` behandelt es dann bereits über den generischen `parseFloat`-Pfad. Den bestehenden Attribut-Änderungs-Test um diesen Fall erweitern.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "CORR-005",
-      "category": "correctness",
-      "domain": "code",
-      "component": "offscreen-display-main",
-      "package": "offscreen-display",
-      "severity": "low",
-      "title": "Canvas-Auflösung an `devicePixelRatio` koppeln",
-      "location": "packages/offscreen-display/src/lib/main/OffscreenDisplay.js:80",
-      "locations": [
-        "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:120"
-      ],
-      "description": "Die an den Worker gemeldete Größe ist die CSS-Pixel-Größe aus `getBoundingClientRect()`, der Worker setzt `canvas.width/height` direkt darauf. Auf Displays mit `devicePixelRatio` 2 oder 3 wird der Backing-Store also auf die Hälfte bzw. ein Drittel der physischen Pixel gesetzt und vom Compositor hochskaliert — die Farbscheiben-Kanten von `rainbow-line` verschwimmen, obwohl Schärfe der Zweck der Komponente ist. `devicePixelRatio` kommt im Quelltext nicht vor.",
-      "recommendation": "Zusammen mit PERF-002 auf `ResizeObserver` mit `devicePixelContentBoxSize` umstellen (Fallback: `contentRect × devicePixelRatio`), die physische Pixelgröße an den Worker senden und die CSS-Größe weiter über das Stylesheet steuern. Zeichenroutinen, die in CSS-Pixeln rechnen, bekommen den Faktor als `pixelRatio` mit.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "RES-002",
-      "category": "resources",
-      "domain": "code",
-      "component": "offscreen-display-worker",
-      "package": "offscreen-display",
-      "severity": "low",
-      "title": "`OffscreenWorkerDisplay` einen `destroy()`-Pfad geben",
-      "location": "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:59",
-      "description": "Der Konstruktor legt vier Signale und drei Effekte ohne `attach` an; laut signalize-Semantik bleiben unattached Effekte über die globalen Registries erreichbar, bis sie explizit zerstört werden. Dazu kommt ein rAF-Loop, den nur `{isConnected: false}` anhält, und eventize-Listener samt retained Events. Eine Instanz pro Worker ist dadurch nicht das Problem — der Worker stirbt mit ihr. Sobald aber ein Worker mehrere Displays hostet oder Tests Instanzen in einem gemeinsamen Kontext anlegen, wächst der Zustand ohne Rückweg. Die Klasse hat weder `destroy()` noch eine Reaktion auf eine `close`-Nachricht.",
-      "recommendation": "Effekte mit `{attach: this}` erzeugen und eine `destroy()`-Methode ergänzen, die `SignalGroup.delete(this)`, `off(this)` und `#cancelAnimationFrame()` aufruft. In `parseMessageData()` eine `{close: true}`-Nachricht verstehen, die `destroy()` und `self.close()` auslöst — damit hat der Main-Thread (RES-001) neben `terminate()` auch einen kooperativen Weg.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "PERF-001",
-      "category": "performance",
-      "domain": "code",
-      "component": "rainbow-line",
-      "package": "rainbow-line",
-      "severity": "medium",
-      "kind": "improvement",
-      "title": "Zeichenroutine von N `fillRect`+String-Parses pro Frame auf ein `drawImage` umstellen",
-      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:25",
-      "locations": [
-        "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:74"
-      ],
-      "description": "Pro Frame läuft eine Schleife über alle Farbscheiben; für jede wird ein neuer CSS-Farbstring gebaut (`hsl(...)` oder `rgb(...)` aus der LUT), von der Canvas-Engine geparst und ein `fillRect` abgesetzt. Bei `color-slice-width=\"1\"` und 1920 px Breite sind das 1920 String-Allokationen, 1920 Farb-Parses und 1920 Draw-Calls pro Frame und Element; die Astro-Variante mit `shadow` verdoppelt das, weil der Schatten ein zweites Element mit eigenem Worker ist. Auf einem Laptop bleibt das unter 16 ms, auf schwachen Mobilgeräten mit mehreren Linien nicht mehr. Die Farben hängen nur von `x/w` und `t` ab, sind also ein zeitlich verschobenes, periodisches Muster — genau das, was ein einmal gerendertes Bild plus Offset abdeckt.",
-      "recommendation": "Bei Parameter- oder Größenänderung einen Streifen der Breite `w` (Regenbogen oder Gradient, in Scheiben quantisiert) einmal in eine zweite `OffscreenCanvas` rendern. Pro Frame nur noch den Zeit-Offset `dx = (t mod 1) * w` berechnen und den Streifen mit zwei `drawImage`-Aufrufen (Wrap-around) auf die Haupt-Canvas kopieren. Für den Gradient-Modus die LUT als vorberechnete `rgb()`-Strings oder direkt als `ImageData`-Zeile halten, statt pro Scheibe zu formatieren.",
-      "effort": "M",
-      "status": "new"
-    },
-    {
-      "id": "PERF-002",
-      "category": "performance",
-      "domain": "code",
-      "component": "offscreen-display-main",
-      "package": "offscreen-display",
-      "severity": "medium",
-      "kind": "improvement",
-      "title": "Main-Thread-rAF-Polling von `getBoundingClientRect()` durch `ResizeObserver` ersetzen",
-      "location": "packages/offscreen-display/src/lib/main/OffscreenDisplay.js:96",
-      "description": "Jedes verbundene Element hält auf dem Main-Thread einen eigenen `requestAnimationFrame`-Loop, der pro Frame `getBoundingClientRect()` liest, nur um eine Größenänderung zu erkennen. Dieses Lesen erzwingt bei anstehenden Style-Änderungen ein synchrones Layout (Layout Thrashing), und es passiert 60- bis 120-mal pro Sekunde für jedes Element — auch wenn sich nie etwas ändert und obwohl der Sinn der Architektur ist, den Main-Thread frei zu halten. Ein `ResizeObserver` liefert dieselbe Information ereignisgesteuert, ohne Layout-Reads und ohne laufenden rAF.",
-      "evidence": "`#onFrame = () => { this.#ifCanvasSizeChanged(...); this.#requestAnimationFrame(); }` — `#ifCanvasSizeChanged` ruft `this.canvas.getBoundingClientRect()` bei jedem Frame.",
-      "recommendation": "In `connectedCallback()` einen `ResizeObserver` auf das Element (oder die Canvas) registrieren, mit `box: 'device-pixel-content-box'` wo verfügbar (löst CORR-005 gleich mit), und in `disconnectedCallback()` `disconnect()` aufrufen. Der rAF-Loop auf dem Main-Thread entfällt; die initiale Größe kommt vom ersten Observer-Callback.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "PERF-003",
-      "category": "performance",
-      "domain": "code",
-      "component": "rainbow-line",
-      "package": "rainbow-line",
-      "severity": "low",
-      "kind": "improvement",
-      "title": "Worker-Bundle-Gewicht prüfen: 48 KB für 100 Zeilen Zeichencode",
-      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:1",
-      "locations": [
-        "packages/rainbow-line/scripts/build.mjs:29"
-      ],
-      "description": "`rainbow-line.worker.js` ist minifiziert 48 KB (16 KB gzip), `bundle.js` 52 KB (17 KB gzip); der Main-Thread-Teil `rainbow-line.js` allein hat 4 KB. Der Rest ist eventize plus signalize, die im Worker nur vier Signale, drei Effekte und vier Event-Namen tragen. Für eine 3 px hohe Trennlinie, die per `\u003cscript>` von einem CDN geladen wird, ist das Verhältnis Nutzcode zu Infrastruktur ungewöhnlich; eventize ist laut eigener Doku als eine Datei praktisch nicht tree-shakebar.",
-      "evidence": "`gzip -9c bundle.js | wc -c` → 17346; `rainbow-line.js` → 1686.",
-      "recommendation": "Entweder bewusst so lassen (der Preis ist einmalig pro Seite und der Worker wird gecacht) oder `OffscreenWorkerDisplay` intern auf ein schlankes Callback-Objekt ohne Reaktivitätsbibliothek reduzieren — die Klasse nutzt von signalize nur Change-Detection auf vier Werten. Vorher `esbuild --analyze` laufen lassen, um die Anteile exakt zu sehen.",
-      "effort": "M",
-      "status": "new"
-    },
-    {
-      "id": "READ-001",
-      "category": "readability",
-      "domain": "code",
-      "component": "rainbow-line",
-      "package": "rainbow-line",
-      "severity": "low",
-      "title": "Verkleidete Formeln und Kommentar-Reste in der Zeichenroutine bereinigen",
-      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:34",
-      "locations": [
-        "packages/rainbow-line/src/RainbowLineElement.js:71",
-        "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:63"
-      ],
-      "description": "`cycleColorsRepeat \u003c 1 ? w / (cycleColorsRepeat * w) : cycleColorsRepeat` ist `1 / cycleColorsRepeat` — die Breite kürzt sich heraus, die Absicht (»Werte unter 1 sind Kehrwerte«) steht nirgends. Der Farb-Regex hat keinen Kommentar, der seine Grammatik erklärt (und ist fehlerhaft, CORR-003). In `RainbowLineElement.js` steht ein auskommentiertes `console.log`. Für sich harmlos, zusammen erschweren sie das Nachvollziehen des einzigen nicht trivialen Codes im Paket.",
-      "recommendation": "Die Kehrwert-Semantik als benannte Funktion (`effectiveRepeat(value)`) mit einem Satz Kommentar schreiben und im README dokumentieren, den Regex durch die Split-Variante aus CORR-003 ersetzen, das tote `console.log` löschen.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "CONS-001",
-      "category": "consistency",
-      "domain": "code",
-      "component": "astro-rainbow-line",
-      "package": "astro-rainbow-line",
-      "severity": "low",
-      "kind": "improvement",
-      "title": "Skript-Tag der Astro-Komponente einmal pro Seite rendern und den `BASE_URL`-Fallback aufräumen",
-      "location": "packages/astro-rainbow-line/RainbowLine.astro:50",
-      "locations": [
-        "packages/astro-rainbow-line/RainbowLine.astro:23"
-      ],
-      "description": "`\u003cscript is:inline … src>` wird bei jeder Komponenteninstanz ausgegeben; die E2E-Seite mit drei `\u003cRainbowLine>` (eine davon mit `shadow`) enthält den Tag dreimal. Der Browser dedupliziert Module nach URL, es entsteht also kein Doppel-`define`, aber jede Instanz vergrößert das HTML und zeigt in DevTools drei identische Skripte. Der Fallback `import.meta.env.BASE_URL ?? '//'` erzeugt bei Greifen `///js/…`, ein protokoll-relativer Pfad auf einen leeren Host — Astro setzt `BASE_URL` allerdings immer, der Zweig ist tot.",
-      "recommendation": "Den Skript-Tag über ein `Set` in `Astro.locals` oder ein Slot-Layout nur beim ersten Rendern ausgeben (Astro bietet dafür kein eingebautes Dedupe bei `is:inline`), alternativ das Laden des Skripts der Seite überlassen und im README dokumentieren. Fallback auf `'/'` ändern oder streichen.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "BUILD-001",
-      "category": "build",
-      "domain": "harness",
-      "component": "build-release",
-      "severity": "medium",
-      "title": "Unreleased Fixes veröffentlichen und Changelog-Versionen mit npm abgleichen",
-      "location": "packages/offscreen-display/CHANGELOG.md:9",
-      "locations": [
-        "packages/rainbow-line/CHANGELOG.md:9",
-        "packages/rainbow-line/CHANGELOG.md:21",
-        "packages/offscreen-display/package.json:4",
-        "packages/rainbow-line/package.json:4"
-      ],
-      "description": "Beide Changelogs führen unter »Unreleased« echte Bugfixes: `offscreen-display` stoppte den Frame-Loop nach `{isConnected: false}` nicht, `rainbow-line` hatte einen `./rainbow-line.worker.js`-Export auf eine nicht existierende Datei. Die `version`-Felder stehen unverändert auf 0.2.0 und 0.4.0, also publiziert der CI-Lauf nichts — npm liefert weiter die fehlerhaften Stände (`npm view`: offscreen-display 0.1.2 und 0.2.0, rainbow-line 0.4.0). Zusätzlich behauptet der rainbow-line-Changelog für 0.4.0 ein Upgrade auf `@spearwolf/offscreen-display ^0.3.0`; diese Version hat es nie gegeben. Der Eintrag für die »Comparing changes«-Links endet bei 0.3.0.",
-      "recommendation": "Versionen bumpen (offscreen-display 0.2.1, rainbow-line 0.4.1), die Changelog-Abschnitte datieren, den 0.3.0-Verweis korrigieren und den Vergleichs-Link für 0.4.0 ergänzen. Anschließend das vendored `rainbow-line-v0.4.1.js` in `astro-rainbow-line` nachziehen (Datei, Default-Pfad in `RainbowLine.astro`, README) — der Test »loads the rainbow-line script from the vendored file« schlägt sonst nicht an, weil er nur Datei gegen Banner prüft, nicht gegen die aktuelle rainbow-line-Version.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "BUILD-002",
-      "category": "build",
-      "domain": "harness",
-      "component": "build-release",
-      "severity": "medium",
-      "title": "Publish-Reihenfolge absichern: `publishNpmPkg` ohne `^publishNpmPkg`-Abhängigkeit",
-      "location": "nx.json:54",
-      "locations": [
-        "scripts/publishNpmPkg.mjs:27",
-        ".github/workflows/main.yml:36"
-      ],
-      "description": "`publishNpmPkg` hängt nur von `buildNpmPkg` ab, nicht von `^publishNpmPkg`; mit `parallel: 8` startet nx die Publishes von `offscreen-display` und `rainbow-line` gleichzeitig. Werden beide Versionen in einem Push gebumpt, kann `rainbow-line@x` mit `\"@spearwolf/offscreen-display\": \"^y\"` vor `offscreen-display@y` auf npm landen — wer in diesem Fenster installiert oder die `./RainbowLineElement.js`-Quelle nutzt, bekommt `ETARGET`. Das Publish-Skript selbst arbeitet mit einem Callback-`exec` und `process.exit()` im Callback; ein Fehler von `npm publish` (execSync wirft) endet als unhandled exception ohne Kontextmeldung. Der Workflow publiziert bei jedem Push auf `main`, ohne Provenance und ohne `concurrency`-Gruppe — zwei schnelle Pushes laufen parallel.",
-      "recommendation": "In `nx.json` `\"publishNpmPkg\": {\"dependsOn\": [\"buildNpmPkg\", \"^publishNpmPkg\"]}` setzen. Im Workflow `concurrency: {group: publish, cancel-in-progress: false}` und `npm publish --provenance` (braucht `permissions: id-token: write`). Im Skript `execSync` in `try`/`catch` mit klarer Meldung und Exit-Code 1.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "DX-001",
-      "category": "dx",
-      "domain": "harness",
-      "component": "build-release",
-      "severity": "medium",
-      "title": "READMEs an eventize 6 und den Funktionsumfang angleichen",
-      "location": "packages/offscreen-display/README.md:65",
-      "locations": [
-        "packages/offscreen-display/README.md:16",
-        "packages/rainbow-line/README.md:8",
-        "packages/astro-rainbow-line/README.md:6"
-      ],
-      "description": "Das Quickstart-Beispiel in `offscreen-display/README.md` ruft `display.on({...})` auf. Seit dem Umstieg auf eventize 6 wird die Instanz mit `eventize(this)` funktional eventized; die Methode `.on` existiert nicht, das Beispiel endet mit `TypeError: display.on is not a function`. Der eigene Code nutzt korrekt `on(display, {...})`. Daneben empfiehlt das README `npm i -D` für eine Laufzeit-Abhängigkeit. Das rainbow-line-README dokumentiert weder `cycle-colors`, `cycle-colors-repeat` noch die Bruch-Semantik von `color-slice-width` — die Features stehen nur im Changelog und in `index.html`. Das astro-README führt seinen Changelog inline statt in einer `CHANGELOG.md` wie die Schwesterpakete.",
-      "recommendation": "Quickstart auf `import {on} from '@spearwolf/eventize'` + `on(display, {...})` umstellen, `-D` streichen. Im rainbow-line-README eine Attribut-Tabelle mit Wertebereichen und Defaults ergänzen (die Wertebereiche ergeben sich aus CORR-001). Für astro-rainbow-line eine `CHANGELOG.md` anlegen.",
-      "effort": "S",
-      "status": "new"
-    },
-    {
-      "id": "TYPES-001",
-      "category": "types",
-      "domain": "harness",
-      "component": "build-release",
-      "severity": "medium",
-      "title": "Typdeklarationen mitliefern und `checkJs` schärfen",
-      "location": "packages/offscreen-display/package.json:14",
-      "locations": [
-        "packages/rainbow-line/package.json:14",
-        "tsconfig.json:15",
-        "packages/rainbow-line/src/RainbowLineElement.js:56"
-      ],
-      "description": "Keines der Packages exportiert `types`; TypeScript-Konsumenten sehen `OffscreenDisplay`, `OffscreenWorkerDisplay` und `RainbowLineElement` als `any` und müssen die Subclass-Hooks `createWorker()`, `getContextAttributes()` und die Event-Signaturen aus dem Quelltext raten. Die JSDoc-Kommentare sind vorhanden, werden aber nicht ausgeliefert. Intern läuft `tsc` mit `strict: false` und `noImplicitAny: false`, dadurch bleiben Parameter wie `attributeChangedCallback(name, _oldValue, newValue)` oder `parseMessageData(data)` untypisiert und der Check fängt nur grobe Fehler.",
-      "recommendation": "Ein zweites `tsconfig.build.json` mit `declaration: true`, `emitDeclarationOnly: true`, `outDir: dist/types` je Package; `types` in `exports` (`\".\": {\"types\": \"./dist/types/index.d.ts\", \"default\": ...}`) und im `buildPackage.mjs` kopieren. JSDoc-Typen an den öffentlichen Methoden vervollständigen. Anschließend `noImplicitAny: true` einschalten und die verbleibenden Stellen annotieren; `strict` kann danach schrittweise folgen.",
-      "effort": "M",
-      "status": "new"
-    },
-    {
-      "id": "TEST-001",
+      "id": "TEST-002",
       "category": "testing",
       "domain": "harness",
       "component": "testing",
-      "severity": "medium",
-      "title": "Lifecycle- und Negativ-Tests ergänzen, damit die Suite Leaks und Hänger meldet statt sie zu umgehen",
-      "location": "packages/rainbow-line/test/rainbowLineBehaviour.js:43",
-      "locations": [
-        "packages/offscreen-display/test/offscreen-display.test.js:52",
-        "packages/rainbow-line/test/rainbowLineBehaviour.js:104",
-        "e2e/playwright.config.js:9",
-        "vitest.shared.mjs:14"
-      ],
-      "description": "Die Suite ist gut gebaut — Blackbox gegen Build-Output, Pixel-Assertions per Screenshot, E2E gegen die publizierten Verzeichnisse — hat aber Lücken genau dort, wo dieser Audit die Defekte findet: `afterEach` terminiert die Worker selbst und verdeckt so RES-001; kein Test prüft, was nach `remove()` mit dem Worker passiert. Es gibt keinen Negativ-Test (ungültige Farbe, `color-slice-width=\"0\"`, `slice-cycle-time=\"0\"`), keinen Test für eine Laufzeitänderung von `cycle-colors-repeat` (CORR-004) und keinen Test, dass die Animation nach einem Listener-Fehler weiterläuft (CORR-002). Die Build-Targets nennen `safari17` und `firefox122`, getestet wird nur Chromium. Timing-Assertions (`sleep(300)`, `waitForTimeout(300)`) plus `retries: 1` in CI können Flakiness kaschieren.",
-      "recommendation": "Einen Test »terminates its worker when removed« schreiben, der nach `remove()` über eine Nachricht aus dem Worker-Fixture oder Playwrights `page.workers()` prüft, dass kein Worker mehr läuft; das manuelle `terminate()` in `afterEach` danach entfernen. Negativ-Tests für die Wertebereiche aus CORR-001 und CORR-003 hinzufügen. Für die Animations-Tests `expect.poll` statt festem `sleep` nutzen. Ein zweites Playwright-Projekt `webkit` (mindestens für `bundle.html`) aufnehmen, sobald `pnpm playwright:install` es mitinstalliert.",
-      "effort": "M",
-      "status": "new"
-    },
-    {
-      "id": "DEP-001",
-      "category": "dependencies",
-      "domain": "harness",
-      "component": "build-release",
       "severity": "low",
-      "title": "Laufzeit-Dependencies von `rainbow-line` und `astro-rainbow-line` an das Geschippte anpassen",
-      "location": "packages/rainbow-line/package.json:50",
-      "locations": [
-        "packages/astro-rainbow-line/package.json:18",
-        ".github/workflows/main.yml:1"
-      ],
-      "description": "`pnpm outdated` meldet nur `@types/node` (24 → 26, passend zum Node-24-Pin, also in Ordnung); Lockfile ohne Duplikate. `rainbow-line` deklariert `@spearwolf/eventize` und `@spearwolf/offscreen-display` als `dependencies`, obwohl `bundle.js`, `rainbow-line.js` und `rainbow-line.worker.js` alles inlinieren — gebraucht werden sie nur für die Quell-Subpfade `./RainbowLineElement.js` und `./RainbowLineWorkerDisplay.js`. Jeder Konsument des Bundles installiert damit eventize und transitiv signalize umsonst. `astro-rainbow-line` hat `astro` nur als devDependency und keine `peerDependencies`, sodass kein Versionskorridor beim Konsumenten geprüft wird. Es gibt weder Dependabot noch Renovate; die letzte Aktualisierung vor der heutigen lag 21 Monate zurück.",
-      "recommendation": "Entscheiden, ob die Quell-Subpfade Teil der öffentlichen API bleiben; wenn ja, eventize/offscreen-display als `peerDependencies` (optional) deklarieren, wenn nein, Subpfade und Dependencies streichen. `astro` als `peerDependencies: {\"astro\": \">=5\"}` eintragen. Eine `.github/dependabot.yml` mit monatlichem Intervall für `npm` und `github-actions` anlegen.",
+      "title": "Fallback-Test der Canvas-Größe unterscheidet bei devicePixelRatio 1 die beiden Messzweige nicht",
+      "location": "packages/offscreen-display/test/offscreen-display.test.js:269",
+      "description": "Der Test »measures the canvas in css pixels times devicePixelRatio where the device pixel box is not supported« läuft mit devicePixelRatio 1. Content-Box × Ratio und Device-Pixel-Box liefern dann dieselbe Größe, der Test würde also nicht rot, wenn der Code den Zweig wieder am falschen Merkmal festmachte. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "Den Test mit einer emulierten Ratio ungleich 1 fahren (etwa per Playwright-deviceScaleFactor im Vitest-Browser-Provider) oder `devicePixelRatio` im Test überschreiben und die erwartete Größe daraus ableiten.",
       "effort": "S",
-      "status": "new"
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
     },
     {
-      "id": "BUILD-003",
+      "id": "TEST-003",
+      "category": "testing",
+      "domain": "harness",
+      "component": "testing",
+      "severity": "low",
+      "title": "test.each ohne Platzhalter erzeugt vier gleichnamige Tests",
+      "location": "packages/rainbow-line/test/rainbowLineBehaviour.js:199",
+      "description": "»accepts cycle-colors separated by commas, tabs and line breaks« läuft über vier Werte, der Name enthält keinen Platzhalter. Im Report stehen vier identische Namen; welcher Fall rot ist, zeigt erst die Fehlermeldung. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "`: %j` an den Testnamen hängen.",
+      "effort": "S",
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
+    },
+    {
+      "id": "CORR-006",
+      "category": "correctness",
+      "domain": "code",
+      "package": "rainbow-line",
+      "component": "rainbow-line",
+      "severity": "low",
+      "title": "Denormalisierte Werte für cycle-colors-repeat ergeben einen unendlichen Kehrwert",
+      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:55",
+      "description": "`effectiveRepeat()` rechnet für Werte unter 1 den Kehrwert. Ein positiver, denormalisierter Wert wie `cycle-colors-repeat=\"1e-320\"` besteht die Positivprüfung und ergibt `Infinity`; das Bild bleibt schwarz stehen. Kein Hänger, kein Absturz. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "Das Ergebnis von `effectiveRepeat()` auf einen endlichen Höchstwert klemmen oder nicht endliche Ergebnisse auf den Default zurückfallen lassen.",
+      "effort": "S",
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
+    },
+    {
+      "id": "TYPES-002",
+      "category": "types",
+      "domain": "harness",
+      "component": "rainbow-line",
+      "severity": "low",
+      "title": "parseMessageData veröffentlicht Record\u003cstring, any> in der Typdeklaration",
+      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:92",
+      "description": "Der Parameter von `parseMessageData()` ist als `Record\u003cstring, any> | null | undefined` annotiert und landet so in der veröffentlichten `.d.ts` des Quell-Subpfads `./RainbowLineWorkerDisplay.js`. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "Auf `Record\u003cstring, number | string | null | undefined>` oder einen benannten Nachrichtentyp einengen.",
+      "effort": "S",
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
+    },
+    {
+      "id": "TYPES-003",
+      "category": "types",
+      "domain": "harness",
+      "component": "offscreen-display-worker",
+      "severity": "info",
+      "title": "Beschreibungen der @typedef fehlen in der erzeugten .d.ts",
+      "location": "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:7",
+      "locations": [
+        "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:18"
+      ],
+      "description": "TypeScript 7 hängt die Beschreibungstexte der beiden `@typedef` (`OffscreenDisplayMessage`, `OffscreenWorkerDisplayEvents`) nicht an die erzeugten Typen; im Editor-Hover fehlt die Erklärung. Rein kosmetisch. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "Die Beschreibung als Kommentar direkt an die Typdefinition bzw. die einzelnen Eigenschaften setzen und die erzeugte `.d.ts` prüfen.",
+      "effort": "S",
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
+    },
+    {
+      "id": "CONS-002",
+      "category": "consistency",
+      "domain": "harness",
+      "component": "astro-rainbow-line",
+      "severity": "info",
+      "title": "Changelog 1.4.0 nennt einen Fix für einen Fehler, den kein Release hatte",
+      "location": "packages/astro-rainbow-line/CHANGELOG.md:23",
+      "description": "»Fixed: the component type-checks in projects with strict TypeScript settings« beschreibt einen Fehler, der erst im selben unveröffentlichten Abschnitt entstanden ist. Nach Keep a Changelog entbehrlich. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "Den Eintrag streichen, solange 1.4.0 nicht veröffentlicht ist.",
+      "effort": "S",
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
+    },
+    {
+      "id": "BUILD-004",
       "category": "build",
       "domain": "harness",
       "component": "build-release",
-      "severity": "low",
-      "title": "Tote Publish-Reste entfernen: `.npmignore`-Dateien und der `.npm-pkg/`-Präfix-Strip",
-      "location": "packages/offscreen-display/.npmignore:1",
+      "severity": "info",
+      "title": "Vergleichslinks im rainbow-line-Changelog zeigen auf nicht gesetzte Tags",
+      "location": "packages/rainbow-line/CHANGELOG.md:81",
       "locations": [
-        "packages/rainbow-line/.npmignore:1",
-        "scripts/makePackageJson.mjs:28",
-        "scripts/makePackageJson.mjs:103",
-        "TODO.md:3"
+        "packages/rainbow-line/CHANGELOG.md:82"
       ],
-      "description": "Publiziert wird aus `.npm-pkg/`, das `buildPackage.mjs` per Whitelist befüllt. Die `.npmignore`-Dateien in `offscreen-display` und `rainbow-line` mit Einträgen für eslint, prettier, jest und rollup sind damit wirkungslos und stammen aus einem früheren Setup; sie suggerieren einen Filtermechanismus, den es nicht mehr gibt. In `makePackageJson.mjs` entfernt `removeDistPathPrefix` den Präfix `.npm-pkg/` aus `main`/`module`/`exports` — die Quell-`package.json` enthalten diesen Präfix nirgends, der Schritt ist ein No-op. `TODO.md` trägt den Generierungsstempel 2024-07-18 und wird nicht in `verify` regeneriert. Sicherheitsaspekt: Das Publish-Skript loggt die ersten sechs Zeichen von `NODE_AUTH_TOKEN`; GitHub maskiert nur das vollständige Secret, der Prefix `npm_xx` landet im öffentlichen CI-Log.",
-      "recommendation": "Beide `.npmignore` löschen, `removeDistPathPrefix` samt `targetSubDir`-Präfix aus `makePackageJson.mjs` entfernen, das Token-Logging auf `set`/`unset` reduzieren, `make:todo` in `verify` aufnehmen oder `TODO.md` aus dem Repo nehmen.",
+      "description": "Die Links für 0.4.0 und 0.5.0 vergleichen gegen die Tags `rainbow-line-v0.4.0` und `rainbow-line-v0.5.0`, die es im Repo nicht gibt; bis zum Tagging führen sie ins Leere. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "`rainbow-line-v0.4.0` auf `896de45` und `rainbow-line-v0.5.0` auf den Release-Commit setzen und pushen.",
       "effort": "S",
-      "status": "new"
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
     },
     {
-      "id": "DX-002",
-      "category": "dx",
+      "id": "BUILD-005",
+      "category": "build",
       "domain": "harness",
       "component": "build-release",
-      "severity": "low",
-      "title": "CI auch für Pull Requests laufen lassen",
-      "location": ".github/workflows/main.yml:3",
-      "description": "Der einzige Workflow triggert auf `push` nach `main`. Pull Requests werden nicht geprüft, ein fehlerhafter Merge fällt erst nach dem Merge auf — und weil der Publish-Job an `ci` hängt, blockiert er dann alle Releases, bis `main` repariert ist. Für ein Ein-Personen-Projekt tolerierbar, für jeden externen Beitrag nicht.",
-      "recommendation": "`on: {push: {branches: [main]}, pull_request: {}}` setzen und den `publish`-Job mit `if: github.event_name == 'push'` schützen.",
+      "severity": "info",
+      "title": "makePackageJson loggt Pfade, die das Skript nicht mehr braucht",
+      "location": "scripts/makePackageJson.mjs:5",
+      "description": "`targetSubDir`, `workspaceRoot` und `packageRoot` samt ihrer `console.log`-Zeilen stehen weiter im Skript, obwohl nach dem Entfernen des Präfix-Strips nur noch `projectRoot` und das Zielverzeichnis gebraucht werden. Kleinbefund des Reviewers ohne Nachrunde, laut Detailplan bewusst stehen gelassen.",
+      "recommendation": "Ungenutzte Variablen und ihre Log-Zeilen entfernen.",
       "effort": "S",
-      "status": "new"
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
+    },
+    {
+      "id": "CORR-007",
+      "category": "correctness",
+      "domain": "code",
+      "package": "offscreen-display",
+      "component": "offscreen-display-worker",
+      "severity": "info",
+      "kind": "improvement",
+      "title": "Ein Listener, der in jedem Frame wirft, erzeugt rund 60 error-Events pro Sekunde",
+      "location": "packages/offscreen-display/src/lib/worker/OffscreenWorkerDisplay.js:152",
+      "description": "Der Frame-Loop fordert den nächsten Frame im `finally` an und läuft deshalb nach einer Exception im `onFrame`-Listener weiter. Wirft der Listener dauerhaft, meldet der Main-Thread jeden Frame ein `error`-Event. So gewollt; die Wertebereichsprüfungen von rainbow-line nehmen die bekannten Auslöser weg. Kleinbefund des Reviewers ohne Nachrunde.",
+      "recommendation": "Wiederholte identische Fehler drosseln oder nach N aufeinanderfolgenden Fehlern den Loop anhalten und einmal melden.",
+      "effort": "S",
+      "status": "new",
+      "origin": {
+        "kind": "induced",
+        "run": "2026-09-22"
+      }
     }
   ],
   "openQuestions": [
@@ -712,7 +520,8 @@
     "notes": [
       "Erster Audit-Lauf, kein Vorgänger-Report.",
       "Schwerpunkt laut Auftrag: Memory Leaks und Laufzeit-Performance; die beiden Kategorien wurden mit Messung (Worker-Zählung, Bundle-Gewicht) statt nur Lektüre geprüft.",
-      "`PERF-001`, `PERF-002`, `PERF-003` und `CONS-001` sind als Optimierungspotenzial ohne Defekt eingetragen und zählen nicht im Score."
+      "`PERF-001`, `PERF-002`, `PERF-003` und `CONS-001` sind als Optimierungspotenzial ohne Defekt eingetragen und zählen nicht im Score.",
+      "Nachgeführt durch den Remediation-Lauf vom 2026-09-22 (6 Pakete, 6 Commits cdafb38..999823e): 19 Findings mit Reviewer-Urteil und Commit-Hash geschlossen, PERF-003 als bewusste Entscheidung acknowledged, 9 Kleinbefunde der Reviewer neu aufgenommen. Kein Finding blieb mangels Beleg offen. Der Code wurde seit dem Audit nicht neu geprüft; die Zahlen sind eine Neuberechnung auf dem veränderten Backlog."
     ]
   },
   "scoreHistory": [
@@ -726,10 +535,43 @@
         "harness": 84
       },
       "coverage": 1
+    },
+    {
+      "date": "2026-09-22",
+      "score": 96,
+      "source": "remediation",
+      "scoreModel": 2,
+      "domains": {
+        "code": 95,
+        "harness": 98
+      },
+      "coverage": 1
     }
   ],
-  "fixHistory": [],
-  "acknowledged": []
+  "fixHistory": [
+    {
+      "date": "2026-09-22",
+      "source": "remediation",
+      "ref": "2026-09-22",
+      "fixed": 19,
+      "inducedFixed": 7,
+      "inducedOpen": 9,
+      "discovered": 15,
+      "attribution": "reviewed"
+    }
+  ],
+  "acknowledged": [
+    {
+      "id": "PERF-003",
+      "title": "Worker-Bundle-Gewicht prüfen: 48 KB für 100 Zeilen Zeichencode",
+      "category": "performance",
+      "domain": "code",
+      "component": "rainbow-line",
+      "location": "packages/rainbow-line/src/RainbowLineWorkerDisplay.js:1",
+      "reason": "Bewusste Entscheidung für @spearwolf/eventize und @spearwolf/signalize in OffscreenWorkerDisplay; das Gewicht des Worker-Bundles wird dafür in Kauf genommen.",
+      "acknowledgedDate": "2026-09-22"
+    }
+  ]
 }</script>
 <script>
 (function () {
