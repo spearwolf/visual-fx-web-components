@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - sharp on screens with a `devicePixelRatio` above 1: the canvas has physical pixels, `color-slice-width` stays in css pixels
 - a removed element terminates its worker
-
 - the `./rainbow-line.worker.js` subpath export pointed to a non-existent `rainbow-line-worker.js`
 - a `color-slice-width`, `slice-cycle-time` or `cycle-colors-repeat` that is `0`, negative or not a number uses the default; slices are at least one device pixel wide, so every value keeps the line animating
 - removing a numeric attribute sets it back to its default
@@ -20,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `bundle.js`: the inlined worker is built for the same browser targets as the element instead of `es2017`, which makes the bundle about 10% smaller
+- `bundle.js`: the inlined worker is built for the same browser targets as the element (`chrome121`, `edge120`, `safari17`, `firefox122`)
 - `@spearwolf/eventize` and `@spearwolf/offscreen-display` are optional peer dependencies: `bundle.js`, `rainbow-line.js` and `rainbow-line.worker.js` are self-contained, only the source subpaths `./RainbowLineElement.js` and `./RainbowLineWorkerDisplay.js` import them
 - published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements); `package.json` names the source `repository`
 - every frame is drawn with two `drawImage` calls from a pre-rendered strip of colors, however narrow the slices are

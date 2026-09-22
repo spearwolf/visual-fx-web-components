@@ -57,4 +57,9 @@ self.addEventListener('message', ({data}) => {
     self.postMessage({event: 'initialAttributes', initialAttributes});
   }
   display.parseMessageData(data);
+
+  // answers after the display has handled the message, so every frame rendered before it arrives ahead of this answer
+  if ('isConnected' in data) {
+    self.postMessage({event: 'isConnected', isConnected: data.isConnected});
+  }
 });

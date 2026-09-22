@@ -16,7 +16,7 @@ Just use ...
 $ pnpm install
 ```
 
-... to install or refresh all the dependencies. The tests run in headless chromium, firefox and webkit, which have to be installed once with ..
+... to install or refresh all the dependencies. The e2e tests run in headless chromium, firefox and webkit, the package tests in headless chromium (`astro-rainbow-line` in node); all three browsers have to be installed once with ..
 
 ```sh
 $ pnpm playwright:install
@@ -34,7 +34,7 @@ $ pnpm cbt  # => clean build test e2e
 |-|-|
 | `pnpm lint` / `pnpm format` | check / fix formatting and lint rules with [biome](https://biomejs.dev/) |
 | `pnpm typecheck` | type check the javascript sources with typescript |
-| `pnpm test` | blackbox tests of every package against its build output ([vitest](https://vitest.dev/) browser mode) |
+| `pnpm test` | blackbox tests of every package against its build output ([vitest](https://vitest.dev/): browser mode in chromium, node for `astro-rainbow-line`) |
 | `pnpm e2e` | the published packages used together, like a consumer would ([playwright](https://playwright.dev/)) |
 | `pnpm verify` | all of the above, as in the github workflow |
 

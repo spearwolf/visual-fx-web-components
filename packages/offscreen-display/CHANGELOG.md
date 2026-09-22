@@ -20,16 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **breaking** for subclasses that assume css pixels: `{resize}` and with it `canvasWidth`/`canvasHeight` are physical pixels
 - `onResize` also fires when only the `pixelRatio` changes
 - `onFrame` starts with the first size from the main thread
+- published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements); `package.json` names the source `repository`
 
 ### Fixed
 
 - the worker kept running after its element was removed from the document
 - an `onFrame` listener that threw ended the animation
 - `OffscreenWorkerDisplay` ignored the `{isConnected: false}` message, so the worker kept rendering frames after the element was disconnected
-
-### Changed
-
-- published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements); `package.json` names the source `repository`
 
 ## [0.2.0] - 2024-12-12
 

@@ -171,6 +171,25 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
     }
   });
 
+  test('the worker stops its frames on {isConnected: false} and resumes them on {isConnected: true}', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+
+    // the element stays in the document, only the worker side of the message is under test
+    display.worker.postMessage({isConnected: false});
+
+    await expect.poll(() => display.eventsOf('isConnected')).toContainEqual({event: 'isConnected', isConnected: false});
+    const framesWhileDisconnected = display.frameCount();
+    // the absence of frames can only be observed by waiting a fixed time
+    await sleep(300);
+    expect(display.frameCount()).toBe(framesWhileDisconnected);
+
+    display.worker.postMessage({isConnected: true});
+
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(framesWhileDisconnected + 2);
+    expect(display.terminatedWorkers).toEqual([]);
+  });
+
   test('terminates its worker one animation frame after it was removed', async () => {
     const display = mountDisplay();
     await expect.poll(() => display.eventsOf('init').length).toBe(1);
