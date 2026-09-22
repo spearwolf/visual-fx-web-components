@@ -24,7 +24,7 @@ jobs:
           run_install: true
 
       - name: Install playwright browsers
-        run: pnpm playwright:install --with-deps
+        run: pnpm playwright:install --with-deps && pnpm playwright:install:webkit --with-deps
 
       - name: Run all checks
         run: pnpm verify

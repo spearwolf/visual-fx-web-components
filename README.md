@@ -16,13 +16,13 @@ Just use ...
 $ pnpm install
 ```
 
-... to install or refresh all the dependencies. The e2e tests run in headless chromium, firefox and webkit, the package tests in headless chromium (`astro-rainbow-line` in node); all three browsers have to be installed once with ..
+... to install or refresh all the dependencies. The e2e tests run in headless chromium and firefox, the package tests in headless chromium (`astro-rainbow-line` in node); both browsers have to be installed once with ..
 
 ```sh
 $ pnpm playwright:install
 ```
 
-Playwright's webkit needs system libraries that some Linux distributions do not ship (ICU 74 and flite on Arch-based systems); there `E2E_SKIP_WEBKIT=1 pnpm e2e` leaves it out, the github workflow always runs all three browsers.
+Playwright's webkit needs system libraries that some Linux distributions do not ship (ICU 74 and flite on Arch-based systems), so locally the e2e tests leave it out unless asked for: install it once with `pnpm playwright:install:webkit` and run `E2E_WEBKIT=1 pnpm e2e`. The github workflow always runs all three browsers.
 
 After that you can simply build and test all packages with ..
 

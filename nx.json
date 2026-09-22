@@ -43,7 +43,7 @@
       },
       "cache": true,
       "dependsOn": ["build", "^buildNpmPkg"],
-      "inputs": ["^default", "default", { "env": "E2E_SKIP_WEBKIT" }]
+      "inputs": ["^default", "default", { "env": "E2E_WEBKIT" }, { "env": "CI" }]
     },
     "buildNpmPkg": {
       "executor": "nx:run-script",

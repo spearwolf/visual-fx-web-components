@@ -3,10 +3,10 @@ import {defineConfig, devices} from '@playwright/test';
 const PORT = Number(process.env.E2E_PORT ?? 4180);
 
 // Playwright's webkit needs system libraries that not every Linux distribution provides (ICU 74 and flite,
-// missing on Arch-based systems); E2E_SKIP_WEBKIT=1 leaves it out locally, CI always runs it
-const skipWebkit = !!process.env.E2E_SKIP_WEBKIT && !process.env.CI;
+// missing on Arch-based systems), so locally it only runs on request with E2E_WEBKIT=1; CI always runs it
+const skipWebkit = !process.env.E2E_WEBKIT && !process.env.CI;
 // every worker process loads this config again and has TEST_WORKER_INDEX set, so only the main process reports the skip
-if (skipWebkit && !process.env.TEST_WORKER_INDEX) console.warn('e2e: skipping the webkit project (E2E_SKIP_WEBKIT is set)');
+if (skipWebkit && !process.env.TEST_WORKER_INDEX) console.warn('e2e: skipping the webkit project (set E2E_WEBKIT=1 to run it)');
 
 export default defineConfig({
   testDir: 'tests',
