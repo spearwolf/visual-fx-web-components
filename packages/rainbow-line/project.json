@@ -13,7 +13,12 @@
       "dependsOn": ["^build"]
     },
     "build": {
-      "outputs": ["{projectRoot}/bundle.js", "{projectRoot}/rainbow-line.js", "{projectRoot}/rainbow-line.worker.js"]
+      "outputs": [
+        "{projectRoot}/bundle.js",
+        "{projectRoot}/rainbow-line.js",
+        "{projectRoot}/rainbow-line.worker.js",
+        "{projectRoot}/dist"
+      ]
     },
     "buildNpmPkg": {
       "outputs": ["{projectRoot}/.npm-pkg"]
@@ -24,6 +29,7 @@
     "default": [
       "{projectRoot}/**/*",
       "!{projectRoot}/.npm-pkg/**/*",
+      "!{projectRoot}/dist/**/*",
       "!{projectRoot}/bundle.js",
       "!{projectRoot}/rainbow-line.js",
       "!{projectRoot}/rainbow-line.worker.js",

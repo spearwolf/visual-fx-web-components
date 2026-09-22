@@ -4,6 +4,7 @@ import {defineConfig} from 'astro/config';
 const astroRainbowLineDir = new URL('../packages/astro-rainbow-line/', import.meta.url);
 
 // a consumer of @spearwolf/astro-rainbow-line has to host the vendored rainbow-line script itself
+/** @type {import('astro').AstroIntegration} */
 const hostVendoredRainbowLine = {
   name: 'host-vendored-rainbow-line',
   hooks: {

@@ -6,8 +6,10 @@ import {
   toPositiveNumber,
 } from './attributes.js';
 
+/** @param {string | null} direction */
 const toCycleDirection = (direction) => (direction === 'left' ? 1 : -1);
 
+/** @param {string | null} colors */
 const toCycleColors = (colors) => (typeof colors === 'string' ? colors.trim() || undefined : undefined);
 
 const OBSERVED_ATTRIBUTES = ['color-slice-width', 'slice-cycle-time', 'cycle-direction', 'cycle-colors', 'cycle-colors-repeat'];
@@ -74,6 +76,11 @@ export class RainbowLineElement extends OffscreenDisplay {
     return Object.fromEntries(OBSERVED_ATTRIBUTES.map((name) => [name, toWorkerValue(name, this.getAttribute(name))]));
   }
 
+  /**
+   * @param {string} name
+   * @param {string | null} _oldValue
+   * @param {string | null} newValue
+   */
   attributeChangedCallback(name, _oldValue, newValue) {
     if (!this.worker) return;
 

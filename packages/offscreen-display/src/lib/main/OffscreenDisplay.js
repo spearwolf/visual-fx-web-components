@@ -47,7 +47,14 @@ export class OffscreenDisplay extends HTMLElement {
     this.shadow = this.attachShadow({mode: 'open'});
     this.shadow.innerHTML = initialHTML;
 
+    /** @type {Worker | undefined} the rendering worker, from connecting the element until dispose() */
     this.worker = undefined;
+
+    /**
+     * @type {HTMLCanvasElement | undefined} the canvas whose control went to the worker;
+     *   a reconnect after dispose() brings a fresh one
+     */
+    this.canvas = undefined;
   }
 
   /**
@@ -76,9 +83,10 @@ export class OffscreenDisplay extends HTMLElement {
   }
 
   /**
+   * The attributes for `getContext()` in the worker, where they arrive as `contextAttributes` of `onCanvas`.
    * You may want to override this method.
    *
-   * @returns {Record<string, unknown>} the unbiased context attributes to be used for the canvas.
+   * @returns {Record<string, unknown>} `{alpha: true}` by default, `{alpha: false}` with the attribute `no-alpha`.
    */
   getContextAttributes() {
     if (this.hasAttribute('no-alpha')) {
@@ -162,14 +170,21 @@ export class OffscreenDisplay extends HTMLElement {
   }
 
   /**
-   * You may want to override this method.
+   * Properties that go into the first message to the worker, together with `canvas` and `contextAttributes`;
+   * the worker receives them in `parseMessageData()`. You may want to override this method.
    *
-   * @returns {Record<string, unknown>} the un-opinionated initial attributes to be sent to the worker with the initial `canvas` message event.
+   * @returns {Record<string, unknown>} none by default.
    */
   getInitialWorkerAttributes() {
     return {};
   }
 
+  /**
+   * @param {string} attributeName
+   * @param {number} defaultValue
+   * @returns {number} the value of the attribute as parsed by `parseFloat`, the default if the attribute is missing
+   *   or not a number.
+   */
   asNumberValue(attributeName, defaultValue) {
     if (this.hasAttribute(attributeName)) {
       const value = parseFloat(this.getAttribute(attributeName));

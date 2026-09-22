@@ -18,6 +18,7 @@ const ROUTES = {
   '/pkg/offscreen-display/': join(packagesDir, 'offscreen-display/.npm-pkg'),
 };
 
+/** @type {Record<string, string>} */
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -25,6 +26,9 @@ const MIME_TYPES = {
   '.json': 'application/json; charset=utf-8',
 };
 
+/**
+ * @param {string} urlPath
+ */
 function resolveFile(urlPath) {
   for (const [prefix, dir] of Object.entries(ROUTES)) {
     if (urlPath.startsWith(prefix)) {

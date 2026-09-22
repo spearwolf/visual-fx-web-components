@@ -21,6 +21,7 @@ export async function decodePngRow(base64Png, y) {
   ctx.drawImage(img, 0, 0);
   const row = y ?? Math.floor(canvas.height / 2);
   const {data} = ctx.getImageData(0, row, canvas.width, 1);
+  /** @type {[number, number, number][]} */
   const pixels = [];
   for (let i = 0; i < data.length; i += 4) {
     pixels.push([data[i], data[i + 1], data[i + 2]]);

@@ -32,6 +32,9 @@ if (versions.includes(pkgJson.version)) {
 
 publishPackage();
 
+/**
+ * @param {string} name
+ */
 function fetchPublishedVersions(name) {
   try {
     const stdout = execSync(`npm show ${name} versions --json`, {encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']});

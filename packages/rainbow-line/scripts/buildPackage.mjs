@@ -31,6 +31,13 @@ for (const filename of COPY_FILES) {
   copyFile(resolve(projectRoot, filename), resolve(packageRoot, filename));
 }
 
+// no existence check: without the type declarations the package must not be built
+fs.cpSync(resolve(projectRoot, 'dist/types'), resolve(packageRoot, 'dist/types'), {recursive: true});
+
+/**
+ * @param {string} src
+ * @param {string} dst
+ */
 function copyFile(src, dst) {
   if (fs.existsSync(src)) {
     console.log('Write to', dst);

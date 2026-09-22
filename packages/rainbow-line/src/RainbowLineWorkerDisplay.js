@@ -1,3 +1,5 @@
+/** @import {EventListenerMethods} from '@spearwolf/eventize' */
+/** @import {OffscreenWorkerDisplayEvents} from '@spearwolf/offscreen-display/worker.js' */
 import {on} from '@spearwolf/eventize';
 import {OffscreenWorkerDisplay} from '@spearwolf/offscreen-display/worker.js';
 import {
@@ -16,6 +18,7 @@ let cycleDirection = -1; // right:-1 or left:1
 let cycleColors;
 let cycleColorsRepeat = DEFAULT_CYCLE_COLORS_REPEAT;
 
+/** @type {OffscreenCanvasRenderingContext2D | null} */
 let ctx = null;
 
 const PALETTE_SIZE = 1024;
@@ -53,35 +56,41 @@ function effectiveRepeat(value) {
   return value < 1 ? 1 / value : value;
 }
 
-on(display, {
-  onCanvas({canvas}, contextAttributes) {
-    ctx = canvas.getContext('2d', contextAttributes);
-  },
+on(
+  display,
+  /** @type {EventListenerMethods<OffscreenWorkerDisplayEvents>} */ ({
+    onCanvas({canvas}, contextAttributes) {
+      ctx = canvas.getContext('2d', contextAttributes);
+    },
 
-  onFrame({now, canvasWidth: w, canvasHeight: h, pixelRatio}) {
-    // a color-slice-width below 1 is a fraction of the width, from 1 up it is in css pixels and the canvas has physical pixels
-    const sliceWidth = Math.min(
-      w,
-      Math.max(1, Math.round(colorSliceWidth < 1 ? colorSliceWidth * w : colorSliceWidth * pixelRatio)),
-    );
-    const sliceCount = Math.ceil(w / sliceWidth);
-    const repeat = cycleColors === undefined ? 1 : effectiveRepeat(cycleColorsRepeat);
+    onFrame({now, canvasWidth: w, canvasHeight: h, pixelRatio}) {
+      // a color-slice-width below 1 is a fraction of the width, from 1 up it is in css pixels and the canvas has physical pixels
+      const sliceWidth = Math.min(
+        w,
+        Math.max(1, Math.round(colorSliceWidth < 1 ? colorSliceWidth * w : colorSliceWidth * pixelRatio)),
+      );
+      const sliceCount = Math.ceil(w / sliceWidth);
+      const repeat = cycleColors === undefined ? 1 : effectiveRepeat(cycleColorsRepeat);
 
-    updateStrip(w, sliceWidth, sliceCount, repeat);
-    updateSlices(sliceCount);
+      updateStrip(w, sliceWidth, sliceCount, repeat);
+      updateSlices(sliceCount);
 
-    const phase = ((now % sliceCycleTime) * cycleDirection) / sliceCycleTime;
-    const offset = ((((phase * repeat) % 1) + 1) % 1) * (w / repeat);
+      const phase = ((now % sliceCycleTime) * cycleDirection) / sliceCycleTime;
+      const offset = ((((phase * repeat) % 1) + 1) % 1) * (w / repeat);
 
-    // the slices stay in place and only change their colors: the first drawImage takes the color at the middle of
-    // each slice from the strip into one pixel, the second stretches every pixel to the slice width without smoothing
-    slicesCtx.imageSmoothingEnabled = false;
-    slicesCtx.drawImage(strip, offset, 0, sliceCount * sliceWidth, 1, 0, 0, sliceCount, 1);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(slices, 0, 0, sliceCount, 1, 0, 0, sliceCount * sliceWidth, h);
-  },
-});
+      // the slices stay in place and only change their colors: the first drawImage takes the color at the middle of
+      // each slice from the strip into one pixel, the second stretches every pixel to the slice width without smoothing
+      slicesCtx.imageSmoothingEnabled = false;
+      slicesCtx.drawImage(strip, offset, 0, sliceCount * sliceWidth, 1, 0, 0, sliceCount, 1);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(slices, 0, 0, sliceCount, 1, 0, 0, sliceCount * sliceWidth, h);
+    },
+  }),
+);
 
+/**
+ * @param {Record<string, any>} data
+ */
 export function parseMessageData(data) {
   display.parseMessageData(data);
 
@@ -183,6 +192,11 @@ function renderPalette(colors) {
 /**
  * Renders the colors along the canvas width at phase 0 into a strip that is long enough for every phase.
  * Does nothing as long as the width, the slice width, the repetition and the palette stay the same.
+ *
+ * @param {number} w
+ * @param {number} sliceWidth
+ * @param {number} sliceCount
+ * @param {number} repeat
  */
 function updateStrip(w, sliceWidth, sliceCount, repeat) {
   if (paletteData == null) {

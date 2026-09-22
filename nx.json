@@ -17,7 +17,8 @@
       "{workspaceRoot}/testing/**/*",
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/pnpm-lock.yaml",
-      "{workspaceRoot}/vitest.shared.mjs"
+      "{workspaceRoot}/vitest.shared.mjs",
+      "{workspaceRoot}/tsconfig.json"
     ]
   },
   "targetDefaults": {

@@ -42,6 +42,9 @@ fs.writeFileSync(releasePackageJsonPath, JSON.stringify(outPackageJson, null, 2)
 
 // --------------------------------------------------------------------------------------------
 
+/**
+ * @param {Record<string, string> | undefined} dependenciesSection
+ */
 function resolveDependencies(dependenciesSection) {
   if (dependenciesSection) {
     Object.entries(dependenciesSection).forEach(([depName, version]) => {
@@ -55,6 +58,9 @@ function resolveDependencies(dependenciesSection) {
   }
 }
 
+/**
+ * @param {string} pkgName
+ */
 function resolvePackageVersion(pkgName) {
   const pkgNameWithoutScope = pkgName.replace(/^@[^/]+\//, '');
   const pkgJsonPath = path.resolve(workspaceRoot, `packages/${pkgNameWithoutScope}/package.json`);

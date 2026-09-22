@@ -56,9 +56,11 @@ ${report}
 `;
 }
 
+/** @param {string} name */
 function makeTitle(name) {
   return name.replace('@spearwolf/', '');
 }
+/** @param {string} name */
 function makeID(name) {
   return name.replace(/[/ ]/g, '-').toLowerCase();
 }

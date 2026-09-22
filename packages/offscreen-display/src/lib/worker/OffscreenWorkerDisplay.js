@@ -1,18 +1,59 @@
 import {emit, eventize, off, retain} from '@spearwolf/eventize';
 import {batch, createEffect, createSignal, SignalGroup} from '@spearwolf/signalize';
 
-export class OffscreenWorkerDisplay {
-  static Canvas = 'onCanvas';
-  static Init = 'onInit';
-  static Resize = 'onResize';
-  static Frame = 'onFrame';
+/**
+ * A message from the main thread, as `OffscreenDisplay` sends it: first `canvas` together with `contextAttributes`
+ * and the attributes of `getInitialWorkerAttributes()`, later `isConnected` and `resize`. Subclasses may add more.
+ * @typedef {{
+ *   canvas?: OffscreenCanvas,
+ *   contextAttributes?: Record<string, unknown>,
+ *   isConnected?: boolean,
+ *   resize?: {width: number, height: number, pixelRatio?: number},
+ * } & Record<string, unknown>} OffscreenDisplayMessage
+ */
 
+/**
+ * The events of an `OffscreenWorkerDisplay` and the arguments their listeners receive, as an event map for
+ * `@spearwolf/eventize` — for example `EventListenerMethods<OffscreenWorkerDisplayEvents>`.
+ * @typedef {{
+ *   onCanvas: [display: OffscreenWorkerDisplay, contextAttributes: Record<string, unknown> | undefined],
+ *   onInit: [display: OffscreenWorkerDisplay],
+ *   onResize: [display: OffscreenWorkerDisplay],
+ *   onFrame: [display: OffscreenWorkerDisplay],
+ * }} OffscreenWorkerDisplayEvents
+ */
+
+export class OffscreenWorkerDisplay {
+  static Canvas = /** @type {const} */ ('onCanvas');
+  static Init = /** @type {const} */ ('onInit');
+  static Resize = /** @type {const} */ ('onResize');
+  static Frame = /** @type {const} */ ('onFrame');
+
+  /** @returns {boolean} */
   get ready() {
-    return this.canvas && this.isConnected;
+    return this.canvas != null && this.isConnected;
   }
+
+  // declared for the type declarations; the constructor turns them into accessors of signals
+
+  /** @type {OffscreenCanvas | null} */
+  canvas;
+
+  /** @type {boolean} */
+  isConnected;
+
+  /** @type {number} the canvas width in physical pixels */
+  canvasWidth;
+
+  /** @type {number} the canvas height in physical pixels */
+  canvasHeight;
+
+  /** @type {number} the ratio of physical pixels to css pixels */
+  pixelRatio;
 
   #rafID = 0;
 
+  /** @type {Record<string, unknown> | undefined} */
   #contextAttributes = undefined;
 
   #receivedPixelRatio = 1;
@@ -64,6 +105,7 @@ export class OffscreenWorkerDisplay {
       },
     });
 
+    /** @type {number} the time of the current frame in seconds */
     this.now = 0;
 
     retain(this.#emitter, [OffscreenWorkerDisplay.Canvas, OffscreenWorkerDisplay.Init, OffscreenWorkerDisplay.Resize]);
@@ -103,6 +145,9 @@ export class OffscreenWorkerDisplay {
     cancelAnimationFrame(this.#rafID);
   }
 
+  /**
+   * @param {number} now the timestamp of requestAnimationFrame in milliseconds
+   */
   #onFrame(now) {
     try {
       // the frames only start with the first size from the main thread, so nothing is drawn into the default size of the canvas
@@ -137,6 +182,9 @@ export class OffscreenWorkerDisplay {
     SignalGroup.delete(this);
   }
 
+  /**
+   * @param {OffscreenDisplayMessage | null | undefined} data
+   */
   parseMessageData(data) {
     if (!data || this.#destroyed) return;
 

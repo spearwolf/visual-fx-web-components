@@ -1,3 +1,6 @@
+/**
+ * @param {{name: string, description: string, version: string}} packageJson
+ */
 export const banner = ({name, description, version}) => `/*!
 @file ${name} - ${description}
 @author Wolfger Schramm <wolfger@spearwolf.de>

@@ -1,7 +1,7 @@
 {
   "name": "rainbow-line",
   "description": "A custom element that displays a cut line animated with rainbow colors",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "license": "Apache-2.0",
   "repository": {
@@ -24,9 +24,11 @@
       "default": "./bundle.js"
     },
     "./RainbowLineElement.js": {
+      "types": "./dist/types/RainbowLineElement.d.ts",
       "default": "./src/RainbowLineElement.js"
     },
     "./RainbowLineWorkerDisplay.js": {
+      "types": "./dist/types/RainbowLineWorkerDisplay.d.ts",
       "default": "./src/RainbowLineWorkerDisplay.js"
     },
     "./rainbow-line.js": {
@@ -38,7 +40,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "pnpm node scripts/build.mjs",
+    "build": "pnpm node scripts/build.mjs && pnpm exec tsc -p tsconfig.build.json",
     "build:pkg:prepare": "pnpm node ./scripts/buildPackage.mjs",
     "build:pkg:json": "pnpm node ../../scripts/makePackageJson.mjs",
     "build:pkg:clean": "pnpm exec rimraf .npm-pkg",

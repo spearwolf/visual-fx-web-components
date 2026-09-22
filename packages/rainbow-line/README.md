@@ -1,4 +1,4 @@
-### rainbow-line
+# rainbow-line
 
 ![npm (scoped)](https://img.shields.io/npm/v/rainbow-line) [![License](https://img.shields.io/badge/License-Apache_2.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -13,6 +13,20 @@ A custom element that displays a cut line animated with rainbow colors ..
 
 <script type="module" src="https://www.unpkg.com/rainbow-line@latest"></script>
 ```
+
+## Usage with npm
+
+```sh
+➜ npm i rainbow-line
+```
+
+```javascript
+import 'rainbow-line';
+```
+
+The default export `bundle.js` is a single file with the worker embedded, it defines the `<rainbow-line>` element.
+
+`rainbow-line/rainbow-line.js` defines the element as well, but loads its worker from `rainbow-line.worker.js` in the same directory: ship both files together.
 
 ## Attributes
 
@@ -35,7 +49,7 @@ live preview at &rarr; [jsfiddle.net/spearwolf/spjbqnxd/](https://jsfiddle.net/s
 
 ## Copyright and License
 
-Copyright &copy; 2024 by [Wolfger Schramm](mailto:wolfger@spearwolf.de?subject=[GitHub]%20@spearwolf/offscreen-display).
+Copyright &copy; 2024 by [Wolfger Schramm](mailto:wolfger@spearwolf.de?subject=[GitHub]%20rainbow-line).
 
 The source code and npm package is licensed under the [Apache-2.0 License](./LICENSE).
 
