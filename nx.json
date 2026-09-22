@@ -11,10 +11,7 @@
   ],
   "defaultBase": "main",
   "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "sharedGlobals": [
       "{workspaceRoot}/scripts/**/*",
       "{workspaceRoot}/package.json",
@@ -25,53 +22,32 @@
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": [
-        "^build",
-        "^default",
-        "default"
-      ],
-      "inputs": [
-        "^default",
-        "default"
-      ]
+      "dependsOn": ["^build", "^default", "default"],
+      "inputs": ["^default", "default"]
     },
     "lint": {
       "cache": true,
-      "inputs": [
-        "default",
-        "{workspaceRoot}/.prettierrc",
-        "{workspaceRoot}/.prettierignore",
-        "{workspaceRoot}/eslint.config.mjs"
-      ]
+      "inputs": ["default", "{workspaceRoot}/.prettierrc", "{workspaceRoot}/.prettierignore", "{workspaceRoot}/eslint.config.mjs"]
     },
     "test": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "default"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["default"]
     },
     "buildNpmPkg": {
       "executor": "nx:run-script",
-      "dependsOn": [
-        "^build",
-        "build",
-        "default"
-      ],
+      "dependsOn": ["^build", "build", "default"],
       "options": {
         "script": "buildNpmPkg"
       }
     },
     "publishNpmPkg": {
       "executor": "nx:run-script",
-      "dependsOn": [
-        "buildNpmPkg"
-      ],
+      "dependsOn": ["buildNpmPkg"],
       "options": {
         "script": "publishNpmPkg"
       }
     }
-  }
+  },
+  "analytics": false
 }
