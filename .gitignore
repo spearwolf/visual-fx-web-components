@@ -48,3 +48,6 @@ tsconfig.*.tsbuildinfo
 
 .nx/cache
 .nx/workspace-data
+
+# implementation plans of agent sessions, kept local
+docs/superpowers/plans/
