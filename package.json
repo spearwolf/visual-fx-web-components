@@ -29,7 +29,7 @@
     "cbt": "pnpm run-s clean build test e2e",
     "make:todo": "pnpm node scripts/makeTODO.mjs TODO.md",
     "verify": "pnpm run-s lint typecheck build test e2e",
-    "publishNpmPkg": "pnpm nx run-many -t publishNpmPkg"
+    "publishNpmPkg": "pnpm nx run-many -t publishNpmPkg --output-style=static"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
