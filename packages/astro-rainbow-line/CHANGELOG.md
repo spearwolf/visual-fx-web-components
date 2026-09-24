@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-24
+
+### Changed
+
+- update the `rainbow-line` web component to `0.6.0` — the default script path is `js/rainbow-line-v0.6.0.js`; host that file instead of `rainbow-line-v0.5.0.js`. The line pauses its animation while it is hidden or out of view
+
 ## [2.0.0] - 2026-09-22
 
 ### Changed
@@ -29,5 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Comparing changes
 
-- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v2.0.0...HEAD)
+- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v2.1.0...HEAD)
+- [2.1.0](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v2.0.0...astro-rainbow-line-v2.1.0)
 - [2.0.0](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v1.3.0...astro-rainbow-line-v2.0.0)

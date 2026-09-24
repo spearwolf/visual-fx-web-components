@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-24
+
+### Changed
+
+- upgrade `@spearwolf/offscreen-display` to `^0.4.0`: the line pauses its animation while it is hidden or more than 200px outside the viewport, instead of requesting an animation frame on every frame
+- `bundle.js` no longer contains the `new Worker(new URL('./rainbow-line.worker.js', import.meta.url))` of the source module, so a bundler of the consumer no longer emits `rainbow-line.worker.js` as an unused asset next to it
+
 ## [0.5.0] - 2026-09-22
 
 ### Added
@@ -79,7 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Comparing changes
 
-- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.5.0...HEAD)
+- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.6.0...HEAD)
+- [0.6.0](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.5.0...rainbow-line-v0.6.0)
 - [0.5.0](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.4.0...rainbow-line-v0.5.0)
 - [0.4.0](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.3.0...rainbow-line-v0.4.0)
 - [0.3.0](https://github.com/spearwolf/visual-fx-web-components/compare/rainbow-line-v0.2.1...rainbow-line-v0.3.0)

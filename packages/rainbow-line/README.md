@@ -26,6 +26,8 @@ import 'rainbow-line';
 
 The default export `bundle.js` is a single file with the worker embedded, it defines the `<rainbow-line>` element.
 
+The line pauses its animation while it is hidden (`display: none` on it or an ancestor) or more than 200px outside the viewport, and resumes when it comes back.
+
 `rainbow-line/rainbow-line.js` defines the element as well, but loads its worker from `rainbow-line.worker.js` in the same directory: ship both files together.
 
 ### Source modules for bundlers

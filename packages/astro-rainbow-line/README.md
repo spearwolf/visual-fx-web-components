@@ -36,7 +36,7 @@ The props become the attributes of the `<rainbow-line>` element; the value range
 
 ## The rainbow-line script
 
-The component does not bundle the web component, it loads it with a `<script>` tag. Your site has to host [rainbow-line-v0.5.0.js](./rainbow-line-v0.5.0.js) from this package as `js/rainbow-line-v0.5.0.js` below its `BASE_URL`, for example in `public/js/`.
+The component does not bundle the web component, it loads it with a `<script>` tag. Your site has to host [rainbow-line-v0.6.0.js](./rainbow-line-v0.6.0.js) from this package as `js/rainbow-line-v0.6.0.js` below its `BASE_URL`, for example in `public/js/`.
 
 The environment variable `RAINBOW_LINE_JS` (in your `.env` file) sets a different path below `BASE_URL`.
 
