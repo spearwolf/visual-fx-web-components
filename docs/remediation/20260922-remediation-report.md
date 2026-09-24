@@ -64,7 +64,7 @@ Scope-Regel: alles, jede Severity (auch info) und jede Kategorie, außer der bew
 
 ## Was nur du tun kannst
 1. **Trusted Publisher eintragen**, je Paket auf npmjs.com → Package → Settings → Trusted publishing → GitHub Actions: Organization or user `spearwolf`, Repository `visual-fx-web-components`, Workflow filename `main.yml`, Environment leer. Für `@spearwolf/offscreen-display`, `rainbow-line`, `@spearwolf/astro-rainbow-line`. Ohne diesen Eintrag scheitert der Publish-Job weiter mit `E404`.
-2. **Dann pushen.** Der erste Push auf `main` veröffentlicht 0.3.0 / 0.5.0 / 1.4.0; danach setzt der Job `tag` `offscreen-display-v0.3.0`, `rainbow-line-v0.5.0` und `astro-rainbow-line-v1.4.0` selbst.
+2. **Dann pushen.** Der erste Push auf `main` veröffentlicht 0.3.0 / 0.5.0 / 2.0.0; danach setzt der Job `tag` `offscreen-display-v0.3.0`, `rainbow-line-v0.5.0` und `astro-rainbow-line-v2.0.0` selbst.
 3. **Alt-Tags einmalig setzen** (Commits belegt über `npm view <paket>@<version> gitHead`):
    ```bash
    git tag offscreen-display-v0.1.2 142bff6
@@ -99,5 +99,5 @@ darin — er läuft danach.
 Die drei Versionen sind unveröffentlicht; dieser Lauf ändert die Stufe gegenüber den veröffentlichten Ständen nicht.
 - `@spearwolf/offscreen-display` — minor (unter 1.0, breaking): 0.2.0 → 0.3.0 passt. Bestimmend bleibt `onResize` in physischen Pixeln; neu ist nur der Typ-Export `OffscreenDisplayMessageProperties`.
 - `rainbow-line` — minor (unter 1.0, breaking): 0.4.0 → 0.5.0 passt. Zusätzlich verengt `parseMessageData(data: RainbowLineMessage | null | undefined)` den Parametertyp des Quell-Subpfads.
-- `@spearwolf/astro-rainbow-line` — major: 1.3.0 → 2.0.0 empfohlen, unverändert gegenüber dem ersten Lauf, die gesetzte Version ist weiter 1.4.0. Die Peer-Anforderung `astro >=5` lässt die Installation in Astro-4-Projekten scheitern; vor dem Push auf 2.0.0 heben oder die Anforderung zurücknehmen.
+- `@spearwolf/astro-rainbow-line` — major: 1.3.0 → 2.0.0 empfohlen, unverändert gegenüber dem ersten Lauf. Die Peer-Anforderung `astro >=5` lässt die Installation in Astro-4-Projekten scheitern. Nachtrag 2026-09-24: der Nutzer hat die Empfehlung übernommen, das Paket steht auf 2.0.0.
 Keine Anhebung vorgenommen.

@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.4.0] - 2026-09-22
+## [2.0.0] - 2026-09-22
 
 ### Changed
 
 - update the `rainbow-line` web component to `0.5.0` — the default script path is `js/rainbow-line-v0.5.0.js`
-- `astro` (`>=5`) is a peer dependency
+- **breaking:** `astro` (`>=5`) is a peer dependency, so the package no longer installs in Astro 4 projects
 - published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements); `package.json` names the source `repository`
 - the `<script>` tag that loads rainbow-line is rendered once per page, however many `<RainbowLine>` the page contains
 - the README documents the props, the css custom properties and where to host the script
@@ -29,5 +29,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Comparing changes
 
-- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v1.4.0...HEAD)
-- [1.4.0](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v1.3.0...astro-rainbow-line-v1.4.0)
+- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v2.0.0...HEAD)
+- [2.0.0](https://github.com/spearwolf/visual-fx-web-components/compare/astro-rainbow-line-v1.3.0...astro-rainbow-line-v2.0.0)
