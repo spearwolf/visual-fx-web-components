@@ -25,6 +25,9 @@ export class OffscreenDisplay extends HTMLElement {
 
   #resizeObserver = new ResizeObserver((entries) => this.#onCanvasResize(entries));
 
+  /** @type {IntersectionObserver | undefined} */
+  #intersectionObserver = undefined;
+
   /** @type {'device-pixel-content-box' | 'content-box' | undefined} */
   #observedBox = undefined;
 
@@ -108,6 +111,7 @@ export class OffscreenDisplay extends HTMLElement {
   }
 
   #unobserveCanvas() {
+    this.#intersectionObserver?.disconnect();
     this.#resizeObserver.disconnect();
     this.#pixelRatioQuery?.removeEventListener('change', this.#onPixelRatioChange);
     this.#pixelRatioQuery = undefined;
@@ -132,6 +136,29 @@ export class OffscreenDisplay extends HTMLElement {
       height = Math.round(entry.contentRect.height * pixelRatio);
     }
     this.worker?.postMessage({resize: {width, height, pixelRatio}});
+  }
+
+  // the worker pauses its frames while the canvas is out of view; the margin lets it start again a little before the
+  // canvas scrolls in, so the first frames in view are fresh ones and not the image from when it left. The root is the
+  // document of the element and not the implicit root: in an iframe the implicit root is the top-level viewport, whose
+  // margin ends at the edge of the iframe
+  #observeIntersection() {
+    if (this.#intersectionObserver?.root !== this.ownerDocument) {
+      this.#intersectionObserver?.disconnect();
+      this.#intersectionObserver = new IntersectionObserver((entries) => this.#onCanvasIntersection(entries), {
+        root: this.ownerDocument,
+        rootMargin: '200px',
+      });
+    }
+    this.#intersectionObserver.observe(this.canvas);
+  }
+
+  /**
+   * @param {IntersectionObserverEntry[]} entries
+   */
+  #onCanvasIntersection(entries) {
+    // only the canvas is observed, so the last entry is its latest state
+    this.worker?.postMessage({isVisible: entries.at(-1).isIntersecting});
   }
 
   #watchPixelRatio() {
@@ -200,6 +227,7 @@ export class OffscreenDisplay extends HTMLElement {
     }
     this.worker.postMessage({isConnected: true});
     this.#observeCanvas();
+    this.#observeIntersection();
   }
 
   disconnectedCallback() {

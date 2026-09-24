@@ -292,6 +292,35 @@ describe('OffscreenDisplay + OffscreenWorkerDisplay', () => {
     await expect.poll(() => display.frameCount()).toBeGreaterThan(framesWhileInvisible + 2);
   });
 
+  test('an element scrolled out of the viewport stops requesting animation frames and resumes when it comes back', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.eventsOf('isVisible').at(-1)).toEqual({event: 'isVisible', isVisible: true});
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+
+    display.style.marginTop = '10000px';
+
+    await expect.poll(() => display.eventsOf('isVisible').at(-1)).toEqual({event: 'isVisible', isVisible: false});
+    await expectNoAnimationFrameRequests(display);
+    const framesWhileOutside = display.frameCount();
+
+    display.style.marginTop = '';
+
+    await expect.poll(() => display.eventsOf('isVisible').at(-1)).toEqual({event: 'isVisible', isVisible: true});
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(framesWhileOutside + 2);
+  });
+
+  test('an element just below the viewport keeps drawing, so it scrolls in with a fresh frame', async () => {
+    const display = mountDisplay();
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
+
+    // 50px below the bottom edge, well inside the 200px margin
+    display.style.marginTop = `${window.innerHeight + 50}px`;
+    const framesBelow = display.frameCount();
+
+    await expect.poll(() => display.frameCount()).toBeGreaterThan(framesBelow + 10);
+    expect(display.eventsOf('isVisible').at(-1)).toEqual({event: 'isVisible', isVisible: true});
+  });
+
   test('an element hidden and then removed terminates its worker one animation frame later', async () => {
     const display = mountDisplay();
     await expect.poll(() => display.frameCount()).toBeGreaterThan(2);
