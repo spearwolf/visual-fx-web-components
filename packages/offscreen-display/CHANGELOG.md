@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-24
+
+### Added
+
+- the message `{isVisible}`: `OffscreenDisplay` observes its canvas with an `IntersectionObserver` (root margin 200px) and tells the worker whether the canvas is in or near the viewport of its document
+
+### Changed
+
+- the frame loop pauses while the canvas is more than 200px outside the viewport and resumes when it comes closer; `onFrame` does not fire in between
+
+### Fixed
+
+- an element that stays connected but is not rendered — `display: none` on itself or an ancestor, a collapsed container, a route that a framework keeps hidden in the DOM — kept requesting an animation frame on every frame; the loop stops at a canvas of 0×0 and starts again with the next size
+
 ## [0.3.0] - 2026-09-22
 
 ### Added
@@ -56,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Comparing changes
 
-- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.3.0...HEAD)
+- [unreleased](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.4.0...HEAD)
+- [0.4.0](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.3.0...offscreen-display-v0.4.0)
 - [0.3.0](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.2.0...offscreen-display-v0.3.0)
 - [0.2.0](https://github.com/spearwolf/visual-fx-web-components/compare/offscreen-display-v0.1.2...offscreen-display-v0.2.0)

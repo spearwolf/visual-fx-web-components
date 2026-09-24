@@ -1,7 +1,7 @@
 {
   "name": "@spearwolf/offscreen-display",
   "description": "helpers for creating custom offscreen canvas elements",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "Wolfger Schramm",
     "email": "wolfger@spearwolf.de",

@@ -99,6 +99,7 @@ There are other features not listed here. For a complete example, see the [rainb
 - `asNumberValue(name, defaultValue)` — the value of an attribute as a number, the default if the attribute is missing or not a number
 - Properties: `worker` (the rendering `Worker`, `undefined` while there is none) and `canvas` (the canvas whose control went to the worker)
 - Lifecycle: connecting the element starts the worker. Disconnecting it sends `{isConnected: false}` to the worker, one animation frame later the element calls `dispose()` and the worker is terminated; moving the element within the same task keeps the worker. Connecting the element again after that starts a fresh worker with a fresh canvas.
+- Pausing: the worker requests no animation frames while its canvas is 0×0 — `display: none` on the element or an ancestor, a collapsed container, a route that a framework keeps hidden in the DOM — or more than 200px outside the viewport of its document, which an `IntersectionObserver` on the canvas reports as `{isVisible}`. The worker and its canvas stay; the frames start again with the next size above 0×0 and with `{isVisible: true}`. A hidden element keeps its worker on purpose: a canvas can be handed to a worker only once, so showing it again would need a fresh canvas and worker and start with a blank frame — just what a framework that hides routes to make going back instant does not want.
 - `dispose()` — terminates the worker and stops observing the size of the canvas. Public and idempotent.
 
 ### `OffscreenWorkerDisplay` — the display, worker
@@ -108,7 +109,7 @@ There are other features not listed here. For a complete example, see the [rainb
   - `onCanvas(display, contextAttributes)` — the canvas has arrived
   - `onInit(display)` — the canvas is there and the element is connected
   - `onResize(display)` — the size or the pixel ratio has changed
-  - `onFrame(display)` — once per animation frame, only while the element is connected, from the first size on and while the canvas is larger than 0
+  - `onFrame(display)` — once per animation frame, only while the element is connected and its canvas in or near the viewport, from the first size on and while the canvas is larger than 0×0
 
   `onCanvas`, `onInit` and `onResize` are retained: a listener added later still receives the last one. A throwing listener does not end the frame loop. Its error arrives as an `error` event at the `Worker`; the same error in the following frames arrives only once, until a frame runs without an error.
 - Properties: `canvas` (the `OffscreenCanvas`), `canvasWidth` and `canvasHeight` (physical pixels), `pixelRatio` (physical pixels per css pixel), `now` (the time of the current frame in seconds), `isConnected`, `ready` (canvas there and connected)
@@ -118,6 +119,7 @@ There are other features not listed here. For a complete example, see the [rainb
 
 - `{canvas, contextAttributes, ...getInitialWorkerAttributes()}` — once, when the worker is created
 - `{isConnected}` — when the element is connected or disconnected
+- `{isVisible}` — whether the canvas is within 200px of the viewport of its document; frames pause while it is not. Until the first `{isVisible}` the worker takes the canvas as visible, so a main thread of your own that never sends it keeps the frames running.
 - `{resize: {width, height, pixelRatio}}` — the size of the canvas in physical pixels and the `devicePixelRatio`
 
 ### TypeScript
