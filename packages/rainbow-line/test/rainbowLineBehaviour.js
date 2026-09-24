@@ -11,6 +11,9 @@ function mountRainbowLine(attributes = {}) {
   }
   line.style.width = `${WIDTH}px`;
   line.style.height = '20px';
+  // until the worker presents its first frame the canvas is transparent and shows the css background of the element,
+  // which chromium renders as a plain red; black instead lets readDrawnRow() wait for the worker's own pixels
+  line.shadowRoot.querySelector('.rainbow').style.background = 'black';
   document.body.appendChild(line);
   return line;
 }
