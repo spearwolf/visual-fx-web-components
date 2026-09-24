@@ -5,6 +5,7 @@ import {
   DEFAULT_SLICE_CYCLE_TIME,
   toPositiveNumber,
 } from './attributes.js';
+import {startWorker} from './startWorker.js';
 
 /** @param {string | null} direction */
 const toCycleDirection = (direction) => (direction === 'left' ? 1 : -1);
@@ -63,9 +64,7 @@ export class RainbowLineElement extends OffscreenDisplay {
   }
 
   createWorker() {
-    return new Worker(new URL('./rainbow-line.worker.js', import.meta.url), {
-      type: 'module',
-    });
+    return startWorker();
   }
 
   getContextAttributes() {

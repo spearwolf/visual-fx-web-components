@@ -44,7 +44,7 @@ import {RainbowLineElement} from 'rainbow-line/RainbowLineElement.js';
 customElements.define('rainbow-line', RainbowLineElement);
 ```
 
-Its `createWorker()` starts the worker source `src/rainbow-line.worker.js` of the package with `new Worker(new URL('./rainbow-line.worker.js', import.meta.url), {type: 'module'})`, the pattern bundlers such as Vite and webpack recognise and bundle as a worker. A worker of your own overrides `createWorker()` and hands every message it receives to `parseMessageData()` from `rainbow-line/RainbowLineWorkerDisplay.js`, as `src/rainbow-line.worker.js` does.
+Its `createWorker()` starts the worker source `src/rainbow-line.worker.js` of the package through `src/startWorker.js`, with `new Worker(new URL('./rainbow-line.worker.js', import.meta.url), {type: 'module'})`, the pattern bundlers such as Vite and webpack recognise and bundle as a worker. A worker of your own overrides `createWorker()` and hands every message it receives to `parseMessageData()` from `rainbow-line/RainbowLineWorkerDisplay.js`, as `src/rainbow-line.worker.js` does.
 
 ## Attributes
 

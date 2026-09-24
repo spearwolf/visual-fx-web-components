@@ -136,6 +136,13 @@ test('the rainbow-line bundle carries a license banner with its version', () => 
   expect(bundle).toContain('Licensed under the Apache License, Version 2.0');
 });
 
+test('the rainbow-line bundle does not reference a worker file, so bundlers emit none next to it', () => {
+  const bundle = readFileSync(new URL('rainbow-line/.npm-pkg/bundle.js', packagesDir), 'utf8');
+
+  // a boolean, so a failure does not print the whole minified bundle
+  expect(bundle.includes('rainbow-line.worker.js'), 'bundle.js mentions rainbow-line.worker.js').toBe(false);
+});
+
 test('astro-rainbow-line vendors the rainbow-line bundle of the current rainbow-line version', () => {
   const {version} = readJson(new URL('rainbow-line/package.json', packagesDir));
   const astroDir = new URL('astro-rainbow-line/', packagesDir);

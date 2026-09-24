@@ -29,5 +29,4 @@ rainbow-line.worker.js
 !src/rainbow-line.worker.js
 rainbow-line.js
 bundle.js
-!src/bundle.js
 .npm-pkg

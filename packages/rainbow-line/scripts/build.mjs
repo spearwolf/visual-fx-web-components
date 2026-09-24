@@ -20,6 +20,17 @@ const sharedBuildOptions = {
   target: ['chrome121', 'edge120', 'safari17', 'firefox122'],
 };
 
+/**
+ * bundle.js starts its worker from the inlined source instead of from a file next to it
+ * @type {import('esbuild').Plugin}
+ */
+const startInlineWorkerPlugin = {
+  name: 'start-inline-worker',
+  setup(build) {
+    build.onResolve({filter: /^\.\/startWorker\.js$/}, ({resolveDir}) => ({path: resolve(resolveDir, 'startInlineWorker.js')}));
+  },
+};
+
 await Promise.all([
   build({
     ...sharedBuildOptions,
@@ -35,7 +46,7 @@ await Promise.all([
 
 await build({
   ...sharedBuildOptions,
-  entryPoints: ['src/bundle.js'],
+  entryPoints: ['src/rainbow-line.js'],
   outfile: 'bundle.js',
-  plugins: [inlineWorkerPlugin()],
+  plugins: [startInlineWorkerPlugin, inlineWorkerPlugin()],
 });
