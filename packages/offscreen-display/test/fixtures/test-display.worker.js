@@ -5,6 +5,14 @@ import {OffscreenWorkerDisplay} from '../../dist/offscreen-display-worker.js';
 // reports every event of the display back to the main thread and fills the canvas on each frame,
 // so the test can observe the worker side from the outside
 
+// counts every animation frame the display requests, so a test can tell a paused loop from one that only skips onFrame
+let animationFrameRequests = 0;
+const requestAnimationFrame = self.requestAnimationFrame.bind(self);
+self.requestAnimationFrame = (callback) => {
+  animationFrameRequests++;
+  return requestAnimationFrame(callback);
+};
+
 const display = new OffscreenWorkerDisplay();
 
 let ctx;
@@ -64,6 +72,10 @@ self.addEventListener('message', ({data}) => {
     throwValueInEveryFrame = data.throwValueInEveryFrame;
     return;
   }
+  if (data.reportAnimationFrameRequests) {
+    self.postMessage({event: 'animationFrameRequests', count: animationFrameRequests});
+    return;
+  }
   if (data.destroy) {
     const signalsBefore = getSignalsCount();
     display.destroy();
@@ -79,5 +91,8 @@ self.addEventListener('message', ({data}) => {
   // answers after the display has handled the message, so every frame rendered before it arrives ahead of this answer
   if ('isConnected' in data) {
     self.postMessage({event: 'isConnected', isConnected: data.isConnected});
+  }
+  if ('isVisible' in data) {
+    self.postMessage({event: 'isVisible', isVisible: data.isVisible});
   }
 });

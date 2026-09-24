@@ -7,6 +7,8 @@ import {batch, createEffect, createSignal, SignalGroup} from '@spearwolf/signali
  * @property {OffscreenCanvas} [canvas] the canvas of the element, transferred once in the first message
  * @property {Record<string, unknown>} [contextAttributes] the attributes for `getContext()`, sent together with `canvas`
  * @property {boolean} [isConnected] whether the element is connected to the document; frames only run while it is
+ * @property {boolean} [isVisible] whether the canvas is in or near the viewport; frames pause while it is not, and
+ *   until the first such message the display takes it as visible
  * @property {{width: number, height: number, pixelRatio?: number}} [resize] the size of the canvas in physical pixels
  *   and their ratio to css pixels
  */
@@ -25,8 +27,8 @@ import {batch, createEffect, createSignal, SignalGroup} from '@spearwolf/signali
  * the canvas has arrived, with the attributes for `getContext()`; retained
  * @property {[display: OffscreenWorkerDisplay]} onInit the canvas is there and the element is connected; retained
  * @property {[display: OffscreenWorkerDisplay]} onResize the size or the pixel ratio has changed; retained
- * @property {[display: OffscreenWorkerDisplay]} onFrame once per animation frame, only while the element is connected,
- *   from the first size on and while the canvas is larger than 0
+ * @property {[display: OffscreenWorkerDisplay]} onFrame once per animation frame, only while the element is connected
+ *   and its canvas in or near the viewport, from the first size on and while the canvas is larger than 0×0
  */
 
 /**
@@ -70,6 +72,8 @@ export class OffscreenWorkerDisplay {
   #receivedPixelRatio = 1;
 
   #hasSize = false;
+
+  #isVisible = true;
 
   #destroyed = false;
 
@@ -160,21 +164,46 @@ export class OffscreenWorkerDisplay {
 
   #cancelAnimationFrame() {
     cancelAnimationFrame(this.#rafID);
+    this.#rafID = 0;
+  }
+
+  // the loop runs while the element is connected and its canvas visible and larger than 0×0 (display: none, a
+  // collapsed container and a hidden framework route all end up as 0×0); before the first size it runs as well, so the
+  // first frame waits for that size and not for another message
+  #shouldRunFrameLoop() {
+    if (this.#destroyed || !this.ready || !this.#isVisible) return false;
+    return !this.#hasSize || (this.canvas.width > 0 && this.canvas.height > 0);
+  }
+
+  // #rafID is 0 exactly while no frame is pending: several messages that all want the loop running start it once,
+  // which keeps it at one onFrame per animation frame
+  #updateFrameLoop() {
+    const pending = this.#rafID !== 0;
+    if (this.#shouldRunFrameLoop()) {
+      if (!pending) this.#requestAnimationFrame();
+    } else if (pending) {
+      this.#cancelAnimationFrame();
+    }
+  }
+
+  // the pixel ratio changes together with the size, so onResize fires once with matching values
+  #syncSize() {
+    batch(() => {
+      this.canvasWidth = this.canvas.width;
+      this.canvasHeight = this.canvas.height;
+      this.pixelRatio = this.#receivedPixelRatio;
+    });
   }
 
   /**
    * @param {number} now the timestamp of requestAnimationFrame in milliseconds
    */
   #onFrame(now) {
+    this.#rafID = 0;
     try {
       // the frames only start with the first size from the main thread, so nothing is drawn into the default size of the canvas
       if (this.ready && this.#hasSize) {
-        // the pixel ratio changes together with the size, so onResize fires once with matching values
-        batch(() => {
-          this.canvasWidth = this.canvas.width;
-          this.canvasHeight = this.canvas.height;
-          this.pixelRatio = this.#receivedPixelRatio;
-        });
+        this.#syncSize();
 
         this.now = now / 1000;
 
@@ -194,8 +223,8 @@ export class OffscreenWorkerDisplay {
       this.#lastFrameError = key;
       if (!repeated) throw error;
     } finally {
-      // a throwing listener must not end the animation
-      this.#requestAnimationFrame();
+      // a throwing listener must not end the animation, only the conditions of #shouldRunFrameLoop() do
+      this.#updateFrameLoop();
     }
   }
 
@@ -222,15 +251,12 @@ export class OffscreenWorkerDisplay {
       this.canvas = data.canvas;
     }
 
-    if ('isConnected' in data) {
-      if (this.isConnected !== data.isConnected) {
-        this.isConnected = data.isConnected;
-        if (this.isConnected) {
-          this.#requestAnimationFrame();
-        } else {
-          this.#cancelAnimationFrame();
-        }
-      }
+    if ('isConnected' in data && this.isConnected !== data.isConnected) {
+      this.isConnected = data.isConnected;
+    }
+
+    if ('isVisible' in data) {
+      this.#isVisible = Boolean(data.isVisible);
     }
 
     if (data.resize && this.canvas) {
@@ -241,6 +267,14 @@ export class OffscreenWorkerDisplay {
       if (this.canvas.height !== height) this.canvas.height = height;
       this.#receivedPixelRatio = data.resize.pixelRatio ?? 1;
       this.#hasSize = true;
+    }
+
+    this.#updateFrameLoop();
+
+    // a paused loop does not pick up a new size in a frame, so the signals follow it here: a canvas that is shown again
+    // was cleared by its new size, and its listeners hear about that through onResize
+    if (data.resize && this.canvas && this.#rafID === 0) {
+      this.#syncSize();
     }
   }
 }
