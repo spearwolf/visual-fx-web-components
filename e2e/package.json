@@ -13,7 +13,7 @@
   "devDependencies": {
     "@spearwolf/astro-rainbow-line": "workspace:*",
     "@spearwolf/offscreen-display": "workspace:*",
-    "astro": "^7.3.3",
+    "astro": "^7.3.5",
     "rainbow-line": "workspace:*"
   }
 }
