@@ -1,0 +1,8 @@
+# Node takes its version from .nvmrc, which the github workflow reads as well.
+# pnpm switches to the exact version in the packageManager field of package.json.
+
+[settings]
+idiomatic_version_file_enable_tools = ["node"]
+
+[tools]
+pnpm = "11"

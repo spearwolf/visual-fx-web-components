@@ -8,7 +8,7 @@ pnpm + nx monorepo of custom HTML elements (web components) for visual effects. 
 
 ## Commands
 
-Run from the repo root (Node >= 24.15, pnpm 11, nx 23):
+Run from the repo root (Node >= 24.15, pnpm 11, nx 23). `mise.toml` provides both tools via `mise install`: node from `.nvmrc` (the single source of the node version, also for the GitHub workflow), pnpm as major 11, which then switches to the exact version in `packageManager`:
 
 ```sh
 pnpm install

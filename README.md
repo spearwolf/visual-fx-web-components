@@ -10,6 +10,8 @@
 
 This is a monorepo based on [nx](https://nx.dev/) and [pnpm](https://pnpm.io/).
 
+With [mise](https://mise.jdx.dev/), `mise install` sets up node (version from `.nvmrc`) and pnpm 11 (`mise.toml`); the exact pnpm version comes from the `packageManager` field in `package.json`.
+
 Just use ...
 
 ```sh

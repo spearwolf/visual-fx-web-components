@@ -9,7 +9,7 @@
     "node": ">=24.15.0",
     "pnpm": ">=11.0.0"
   },
-  "packageManager": "pnpm@11.27.1",
+  "packageManager": "pnpm@11.28.3",
   "scripts": {
     "nx": "pnpm exec nx",
     "rimraf": "pnpm exec rimraf",
@@ -32,10 +32,10 @@
     "publishNpmPkg": "pnpm nx run-many -t publishNpmPkg --output-style=static"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.14",
+    "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.63.0",
-    "@types/node": "^24.13.6",
-    "@vitest/browser-playwright": "^5.0.2",
+    "@types/node": "^24.19.0",
+    "@vitest/browser-playwright": "^5.0.3",
     "esbuild": "^0.28.2",
     "leasot": "^14.4.0",
     "npm-run-all2": "^9.0.3",
@@ -44,6 +44,6 @@
     "rimraf": "^6.1.3",
     "typescript": "~7.0.2",
     "vite": "^8.3.1",
-    "vitest": "^5.0.2"
+    "vitest": "^5.0.3"
   }
 }
