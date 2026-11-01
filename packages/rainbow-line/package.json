@@ -52,12 +52,12 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@spearwolf/eventize": "^6.2.0",
+    "@spearwolf/eventize": "^6.3.0",
     "@spearwolf/offscreen-display": "workspace:*",
-    "vite": "^8.3.1"
+    "vite": "^8.3.5"
   },
   "peerDependencies": {
-    "@spearwolf/eventize": "^6.2.0",
+    "@spearwolf/eventize": "^6.3.0",
     "@spearwolf/offscreen-display": "workspace:*"
   },
   "peerDependenciesMeta": {

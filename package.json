@@ -32,18 +32,18 @@
     "publishNpmPkg": "pnpm nx run-many -t publishNpmPkg --output-style=static"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
-    "@playwright/test": "^1.63.0",
+    "@biomejs/biome": "^2.6.4",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^24.19.0",
-    "@vitest/browser-playwright": "^5.0.3",
+    "@vitest/browser-playwright": "^5.0.5",
     "esbuild": "^0.28.2",
     "leasot": "^14.4.0",
-    "npm-run-all2": "^9.0.3",
+    "npm-run-all2": "^9.0.4",
     "nx": "^23.2.1",
-    "playwright": "^1.63.0",
+    "playwright": "^1.64.1",
     "rimraf": "^6.1.3",
     "typescript": "~7.0.2",
-    "vite": "^8.3.1",
-    "vitest": "^5.0.3"
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   }
 }
