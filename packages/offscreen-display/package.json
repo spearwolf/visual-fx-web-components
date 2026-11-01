@@ -41,7 +41,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@spearwolf/eventize": "^6.2.0",
+    "@spearwolf/eventize": "^6.3.0",
     "@spearwolf/signalize": "^1.0.0"
   },
   "devDependencies": {
