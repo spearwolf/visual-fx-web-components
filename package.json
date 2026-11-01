@@ -39,7 +39,7 @@
     "esbuild": "^0.28.2",
     "leasot": "^14.4.0",
     "npm-run-all2": "^9.0.3",
-    "nx": "^23.2.1",
+    "nx": "^24.0.2",
     "playwright": "^1.63.0",
     "rimraf": "^6.1.3",
     "typescript": "~7.0.2",
